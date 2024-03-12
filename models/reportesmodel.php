@@ -22,6 +22,7 @@ class ReportesModel extends Model
                 $sql = "SELECT  
             *
             from creditos_solicitados cs
+            where estado = 1
             -- where date(fecha_creado) between :fecha_ini and :fecha_fin
             -- group by 
             -- date(fecha_creado)
