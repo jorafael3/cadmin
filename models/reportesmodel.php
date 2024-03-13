@@ -31,14 +31,16 @@ class ReportesModel extends Model
 
                 $sql = "SELECT 
             st.fecha_creado,
+            cs.cedula,
             st.numero,
-            count(cc.cantidad) as cant_consultas
-            from solo_telefonos st
-            left join cantidad_consultas cc 
-            on cc.numero = st.numero
-            where st.numero not in (select numero from creditos_solicitados cs where estado = 1)
-            -- and date(st.fecha_creado) between :fecha_ini and :fecha_fin
-            group by st.numero";
+            cs.correo
+            from solo_telefonos st 
+            left join creditos_solicitados cs 
+            on cs.numero = st.numero
+            where st.estado = 1
+            and st.numero not in (select numero from creditos_solicitados cs2 where estado = 1)
+            order by st.fecha_creado desc
+           ";
             }
 
 

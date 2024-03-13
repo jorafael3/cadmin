@@ -40,6 +40,9 @@ $url_cargar_reporte = constant('URL') . 'reportes/Cargar_Reporte/';
 
     function Tabla_reporte(data) {
         $('#Tabla_reporte').empty();
+        if ($.fn.dataTable.isDataTable('#Tabla_reporte')) {
+            $('#Tabla_reporte').DataTable().destroy();
+        }
         var table = $('#Tabla_reporte').DataTable({
             destroy: true,
             data: data,
@@ -50,7 +53,7 @@ $url_cargar_reporte = constant('URL') . 'reportes/Cargar_Reporte/';
             "paging": true,
             buttons: ['excel'],
             "order": [
-                [0, "asc"],
+                [0, "desc"],
             ],
             // "columnDefs": [{
             //     "width": "5%",
@@ -92,7 +95,10 @@ $url_cargar_reporte = constant('URL') . 'reportes/Cargar_Reporte/';
                         const edad = fechaActual.diff(fechaNacimiento, 'years');
                         return edad
                     }
-                }
+                }, {
+                    data: "correo",
+                    title: "correo",
+                },
 
             ],
 
@@ -105,6 +111,9 @@ $url_cargar_reporte = constant('URL') . 'reportes/Cargar_Reporte/';
 
     function Tabla_reporte_incompleto(data) {
         $('#Tabla_reporte').empty();
+        if ($.fn.dataTable.isDataTable('#Tabla_reporte')) {
+            $('#Tabla_reporte').DataTable().destroy();
+        }
         var table = $('#Tabla_reporte').DataTable({
             destroy: true,
             data: data,
@@ -115,7 +124,7 @@ $url_cargar_reporte = constant('URL') . 'reportes/Cargar_Reporte/';
             "paging": true,
             buttons: ['excel'],
             "order": [
-                [0, "asc"],
+                [0, "desc"],
             ],
             // "columnDefs": [{
             //     "width": "5%",
@@ -133,7 +142,14 @@ $url_cargar_reporte = constant('URL') . 'reportes/Cargar_Reporte/';
                 }, {
                     data: "numero",
                     title: "numero"
-                }
+                },
+                {
+                    data: "cedula",
+                    title: "cedula"
+                }, {
+                    data: "correo",
+                    title: "correo",
+                },
 
             ],
 
