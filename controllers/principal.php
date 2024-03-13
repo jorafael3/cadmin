@@ -17,9 +17,9 @@ class Principal extends Controller
         $this->view->render('principal/dashboard');
     }
 
-    function ConsultarVentasvendedores()
+    function cargar_grafico_linea_horas()
     {
         $array = json_decode(file_get_contents("php://input"), true);
-        $function = $this->model->ConsultarVentasVendedores($array);
+        $function = $this->model->cargar_grafico_linea_horas($array);
     }
 }
