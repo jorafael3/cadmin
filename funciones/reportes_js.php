@@ -2,10 +2,21 @@
 
 $url_cargar_reporte = constant('URL') . 'reportes/Cargar_Reporte/';
 
+// $u = "$_SERVER[HTTP_HOST]";
+$SO = PHP_OS;
+if ($SO  == "Linux") {
+    $directorio_archivo = "/c/recursos/docs/";
+    $url_Generar_pdf = '/c/principal/Generar_pdf/';
+} else {
+    $directorio_archivo = "/creditoexpress/recursos/docs/";
+    $url_Generar_pdf = '/creditoexpress/principal/Generar_pdf/';
+}
 ?>
 
 <script>
     var url_cargar_reporte = '<?php echo $url_cargar_reporte ?>';
+    var directorio_archivo = '<?php echo $directorio_archivo ?>';
+    var url_Generar_pdf = '<?php echo $url_Generar_pdf ?>';
 
 
     function Cargar_reporte() {
@@ -18,14 +29,13 @@ $url_cargar_reporte = constant('URL') . 'reportes/Cargar_Reporte/';
             fecha_fin: moment(fecha_fin).format("YYYY-MM-DD"),
             tipo: tipo
         }
-        console.log('param: ', param);
 
 
         AjaxSendReceiveData(url_cargar_reporte, param, function(x) {
             console.log('x: ', x);
 
-            let data = x.filter(i => new Date(moment(i.fecha_creado).format("YYYY-MM-DD")) >= new Date(moment(fecha_ini).format("YYYY-MM-DD"))
-                && new Date(moment(i.fecha_creado).format("YYYY-MM-DD")) <= new Date(moment(fecha_fin).format("YYYY-MM-DD")));
+            let data = x.filter(i => new Date(moment(i.fecha_creado).format("YYYY-MM-DD")) >= new Date(moment(fecha_ini).format("YYYY-MM-DD")) &&
+                new Date(moment(i.fecha_creado).format("YYYY-MM-DD")) <= new Date(moment(fecha_fin).format("YYYY-MM-DD")));
             console.log('data: ', data);
             if (tipo == true) {
                 Tabla_reporte(data);
@@ -47,7 +57,7 @@ $url_cargar_reporte = constant('URL') . 'reportes/Cargar_Reporte/';
             destroy: true,
             data: data,
             dom: 'Brtip',
-            responsive: true,
+            // responsive: true,
             deferRender: true,
             "pageLength": 20,
             "paging": true,
@@ -99,6 +109,19 @@ $url_cargar_reporte = constant('URL') . 'reportes/Cargar_Reporte/';
                     data: "correo",
                     title: "correo",
                 },
+                {
+                    data: "ruta_archivo",
+                    title: "terminos",
+                    className: "btn_terminos",
+                    render: function(x) {
+                        if (x != null) {
+                            x = "<a target='_blank' href='" + directorio_archivo + x + "'><i class='bi bi-filetype-pdf fs-1 text-danger'></i></a>"
+                        } else {
+                            x = '<a><i class="bi bi-filetype-pdf fs-1 text-danger"></i></a>';
+                        }
+                        return x;
+                    }
+                },
 
             ],
 
@@ -106,7 +129,31 @@ $url_cargar_reporte = constant('URL') . 'reportes/Cargar_Reporte/';
                 // $('td', row).eq(1).addClass('bg-warning bg-opacity-50');
             }
 
+
+
+
         }).clear().rows.add(data).draw();
+
+        $('#Tabla_reporte tbody').on('click', 'td.btn_terminos', function(e) {
+            var data = table.row(this).data();
+            console.log('data: ', data);
+            if (data["ruta_archivo"] == null) {
+
+                let param = {
+                    cedula: data["cedula"],
+                    nombre_cliente: data["nombre_cliente"],
+                    fecha_creado: moment(data["fecha_creado"]).format("YYYYMMDDhhmmss"),
+                    ip: data["ip"],
+                }
+
+                AjaxSendReceiveData(url_Generar_pdf, param, function(x) {
+                    console.log('x: ', x);
+                    if (x == 1) {
+                        Cargar_reporte();
+                    }
+                })
+            }
+        });
     }
 
     function Tabla_reporte_incompleto(data) {
@@ -150,6 +197,17 @@ $url_cargar_reporte = constant('URL') . 'reportes/Cargar_Reporte/';
                     data: "correo",
                     title: "correo",
                 },
+                {
+                    data: "terminos",
+                    title: "acepto terminos",
+                    render: function(x) {
+                        if (x == 1) {
+                            x = "SI"
+                        }
+                        return x;
+                    }
+                },
+
 
             ],
 

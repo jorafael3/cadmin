@@ -1,7 +1,6 @@
 <?php
 
 require 'views/header.php';
-require 'funciones/toplocalesjs.php';
 date_default_timezone_set('America/Guayaquil');
 
 $currentDateTime = date("Y-m-d");

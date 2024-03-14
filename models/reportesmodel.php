@@ -20,20 +20,24 @@ class ReportesModel extends Model
             if ($tipo == 1) {
 
                 $sql = "SELECT  
-            *
-            from creditos_solicitados cs
-            where estado = 1
-            -- where date(fecha_creado) between :fecha_ini and :fecha_fin
-            -- group by 
-            -- date(fecha_creado)
-            order by fecha_creado asc";
+                cs.*,
+                st.terminos
+                from creditos_solicitados cs
+                left join solo_telefonos st 
+                on st.numero = cs.numero 
+                where cs.estado = 1 and st.estado = 1
+                -- where date(fecha_creado) between :fecha_ini and :fecha_fin
+                -- group by 
+                -- date(fecha_creado)
+                order by cs.fecha_creado asc";
             } else {
 
-                $sql = "SELECT 
+            $sql = "SELECT 
             st.fecha_creado,
             cs.cedula,
             st.numero,
-            cs.correo
+            cs.correo,
+            st.terminos
             from solo_telefonos st 
             left join creditos_solicitados cs 
             on cs.numero = st.numero
