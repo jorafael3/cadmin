@@ -72,4 +72,36 @@ class PrincipalModel extends Model
             print_r($query->errorInfo());
         }
     }
+
+    function cargar_grafico_por_localidad($parametros)
+    {
+        // $fecha_ini = $parametros["fecha_ini"];
+        // $fecha_fin = $parametros["fecha_fin"];
+
+        try {
+            $items = [];
+            $query = $this->db->connect()->prepare("SELECT 
+                localidad,
+                count(localidad)  as cantidad
+                from creditos_solicitados cs 
+                where estado  = 1
+                group by localidad
+                order by cantidad desc
+            ");
+            // $query->bindParam(":fechaini", $fecha_ini, PDO::PARAM_STR);
+            // $query->bindParam(":fechafin", $fecha_fin, PDO::PARAM_STR);
+
+            if ($query->execute()) {
+                $result = $query->fetchAll(PDO::FETCH_ASSOC);
+                echo json_encode($result);
+                exit();
+            } else {
+                $err = $query->errorInfo();
+                echo json_encode($err);
+                exit();
+            }
+        } catch (PDOException $e) {
+            print_r($query->errorInfo());
+        }
+    }
 }

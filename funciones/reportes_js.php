@@ -1,6 +1,7 @@
 <?php
 
 $url_cargar_reporte = constant('URL') . 'reportes/Cargar_Reporte/';
+$url_Generar_ciudades = constant('URL') . 'reportes/Generar_ciudades/';
 
 // $u = "$_SERVER[HTTP_HOST]";
 $SO = PHP_OS;
@@ -17,6 +18,7 @@ if ($SO  == "Linux") {
     var url_cargar_reporte = '<?php echo $url_cargar_reporte ?>';
     var directorio_archivo = '<?php echo $directorio_archivo ?>';
     var url_Generar_pdf = '<?php echo $url_Generar_pdf ?>';
+    var url_Generar_ciudades = '<?php echo $url_Generar_ciudades ?>';
 
 
     function Cargar_reporte() {
@@ -216,6 +218,15 @@ if ($SO  == "Linux") {
             }
 
         }).clear().rows.add(data).draw();
+    }
+
+
+    function Generar_ciudades() {
+
+        AjaxSendReceiveData(url_Generar_ciudades, [], function(x) {
+            console.log('x: ', x);
+
+        })
     }
 
     function AjaxSendReceiveData(url, data, callback) {

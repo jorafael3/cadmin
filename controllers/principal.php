@@ -28,4 +28,10 @@ class Principal extends Controller
         $array = json_decode(file_get_contents("php://input"), true);
         $function = $this->model->cargar_grafico_por_edad($array);
     }
+
+    function cargar_grafico_por_localidad()
+    {
+        $array = json_decode(file_get_contents("php://input"), true);
+        $function = $this->model->cargar_grafico_por_localidad($array);
+    }
 }

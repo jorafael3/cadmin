@@ -38,6 +38,10 @@ $currentDateTime = date("Y-m-d");
                 <div class="col-3">
                     <button onclick="Cargar_reporte()" class="btn btn-primary"><i class="bi bi-box-arrow-in-down fs-1 fw-bold"></i></button>
                 </div>
+                <div class="col-3 d-none">
+                    <button onclick="Generar_ciudades()">aaaaaaaaa</button>
+                </div>
+
                 <div class="col-12 pt-3">
                     <table id="Tabla_reporte" style="width: 100%; font-size: 14px; font-weight: bold;" class="table-hover table-bordered table-striped">
 
