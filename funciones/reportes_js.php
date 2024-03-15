@@ -117,7 +117,7 @@ if ($SO  == "Linux") {
                         if (x != null) {
                             x = "<a target='_blank' href='" + directorio_archivo + x + "'><i class='bi bi-filetype-pdf fs-1 text-danger'></i></a>"
                         } else {
-                            x = '<a><i class="bi bi-filetype-pdf fs-1 text-danger"></i></a>';
+                            x = '<a>GENERAR</a>';
                         }
                         return x;
                     }
