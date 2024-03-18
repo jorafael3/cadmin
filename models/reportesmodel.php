@@ -77,6 +77,7 @@ class ReportesModel extends Model
                 from creditos_solicitados cs
                 where cs.estado = 1
                 order by cs.fecha_creado asc
+                
                 ";
 
             $query = $this->db->connect()->prepare($sql);
@@ -88,13 +89,21 @@ class ReportesModel extends Model
                     $cedula_encr = trim($row["cedula_encr"]);
                     $d = $this->consulta_api_cedula($cedula_encr);
                     $CANT = $d[1][0]->CANT_DOM;
+                    $DACTILAR = $d[1][0]->INDIVIDUAL_DACTILAR;
+                    $FECHA_NACIM = $d[1][0]->FECHA_NACIM;
                     $sql2 = "UPDATE creditos_solicitados cs
-                    SET localidad = :localidad
+                    SET 
+                        localidad = :localidad,
+                        fecha_nacimiento = :fecha_nacimiento,
+                        codigo_dactilar = :codigo_dactilar,
+
                     where cs.cedula = :cedula
                     ";
 
                     $query2 = $this->db->connect()->prepare($sql2);
                     $query2->bindParam(":localidad", $CANT, PDO::PARAM_STR);
+                    $query2->bindParam(":fecha_nacimiento", $FECHA_NACIM, PDO::PARAM_STR);
+                    $query2->bindParam(":codigo_dactilar", $DACTILAR, PDO::PARAM_STR);
                     $query2->bindParam(":cedula", $cedula, PDO::PARAM_STR);
                     if ($query2->execute()) {
 

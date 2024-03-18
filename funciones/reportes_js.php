@@ -228,6 +228,7 @@ if ($SO  == "Linux") {
 
         })
     }
+    
 
     function AjaxSendReceiveData(url, data, callback) {
         var xmlhttp = new XMLHttpRequest();

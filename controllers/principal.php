@@ -34,4 +34,16 @@ class Principal extends Controller
         $array = json_decode(file_get_contents("php://input"), true);
         $function = $this->model->cargar_grafico_por_localidad($array);
     }
+
+    function Cargar_Cant_Consultas()
+    {
+        $array = json_decode(file_get_contents("php://input"), true);
+        $function = $this->model->Cargar_Cant_Consultas($array);
+    }
+
+    function Cargar_Cant_Dispositivo()
+    {
+        $array = json_decode(file_get_contents("php://input"), true);
+        $function = $this->model->Cargar_Cant_Dispositivo($array);
+    }
 }

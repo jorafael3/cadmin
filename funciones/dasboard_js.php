@@ -3,6 +3,8 @@
 $url_cargar_grafico_linea_horas = constant('URL') . 'principal/cargar_grafico_linea_horas/';
 $url_cargar_grafico_por_edad = constant('URL') . 'principal/cargar_grafico_por_edad/';
 $url_cargar_grafico_por_localidad = constant('URL') . 'principal/cargar_grafico_por_localidad/';
+$url_Cargar_Cant_Consultas = constant('URL') . 'principal/Cargar_Cant_Consultas/';
+$url_Cargar_Cant_Dispositivo = constant('URL') . 'principal/Cargar_Cant_Dispositivo/';
 
 ?>
 
@@ -10,8 +12,125 @@ $url_cargar_grafico_por_localidad = constant('URL') . 'principal/cargar_grafico_
     var url_cargar_grafico_linea_horas = '<?php echo $url_cargar_grafico_linea_horas ?>';
     var url_cargar_grafico_por_edad = '<?php echo $url_cargar_grafico_por_edad ?>';
     var url_cargar_grafico_por_localidad = '<?php echo $url_cargar_grafico_por_localidad ?>';
+    var url_Cargar_Cant_Consultas = '<?php echo $url_Cargar_Cant_Consultas ?>';
+    var url_Cargar_Cant_Dispositivo = '<?php echo $url_Cargar_Cant_Dispositivo ?>';
+
+    //** CANTODAD DE CONSULTAS */
+
+    function Cargar_Cant_Consultas() {
+
+        AjaxSendReceiveData(url_Cargar_Cant_Consultas, [], function(x) {
+            console.log('x: ', x);
+            let suma = 0;
+            x.map(function(y) {
+                suma = suma + parseInt(y.cantidad)
+            })
+            console.log('suma: ', suma);
+            $("#CANTIDAD_CONSULTAS").text(suma);
+            Cargar_Cant_Consultas_Grafico(x)
+        })
+    }
+    Cargar_Cant_Consultas()
+
+    function Cargar_Cant_Consultas_Grafico(datos) {
 
 
+
+        am4core.ready(function() {
+
+            // Themes begin
+            am4core.useTheme(am4themes_animated);
+            // Themes end
+
+            var chart = am4core.create("Cargar_Cant_Consultas_Grafico", am4charts.XYChart3D);
+
+            chart.data = datos
+            chart.padding(40, 40, 40, 40);
+
+            let categoryAxis = chart.xAxes.push(new am4charts.CategoryAxis());
+            categoryAxis.dataFields.category = "estado";
+            categoryAxis.renderer.labels.template.rotation = 0;
+            categoryAxis.renderer.labels.template.hideOversized = false;
+            categoryAxis.renderer.minGridDistance = 20;
+            categoryAxis.tooltip.label.rotation = 0;
+
+            let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+            valueAxis.title.text = "";
+            valueAxis.title.fontWeight = "bold";
+
+            // Create series
+            var series = chart.series.push(new am4charts.ColumnSeries3D());
+            series.dataFields.valueY = "cantidad";
+            series.dataFields.categoryX = "estado";
+            series.name = "cantidad";
+            series.tooltipText = "{categoryX}: [bold]{valueY}[/]";
+            series.columns.template.fillOpacity = .8;
+            chart.colors.list = [
+                am4core.color("#52BE80"),
+                am4core.color("#F4D03F"),
+            ];
+
+            var columnTemplate = series.columns.template;
+            columnTemplate.strokeWidth = 2;
+            columnTemplate.strokeOpacity = 1;
+            columnTemplate.stroke = am4core.color("#FFFFFF");
+
+            columnTemplate.adapter.add("fill", function(fill, target) {
+                return chart.colors.getIndex(target.dataItem.index);
+            })
+
+            columnTemplate.adapter.add("stroke", function(stroke, target) {
+                return chart.colors.getIndex(target.dataItem.index);
+            })
+
+            // Agregar etiquetas de texto encima de las barras
+            var labelBullet = series.bullets.push(new am4charts.LabelBullet());
+            labelBullet.label.text = "{valueY}";
+            labelBullet.label.dy = -10; // Ajuste de la posición vertical de la etiqueta
+            labelBullet.label.truncate = false;
+            labelBullet.label.hideOversized = false;
+            labelBullet.label.fontSize = 30; // Ajuste del tamaño de la fuente
+            labelBullet.label.fontWeight = "bold"; // Establecer negrita
+            chart.cursor = new am4charts.XYCursor();
+            chart.cursor.lineX.strokeOpacity = 0;
+            chart.cursor.lineY.strokeOpacity = 0;
+
+        }); // end am4core.ready()
+    }
+
+    //*** POR DISPOSITOVO */
+
+    function Cargar_Cant_Dispositivo() {
+
+        AjaxSendReceiveData(url_Cargar_Cant_Dispositivo, [], function(x) {
+            console.log('x: ', x);
+            let wind = 0;
+            let android = 0;
+            let mac = 0;
+
+            x.map(function(y) {
+                let tipo = (y.tipo).toUpperCase()
+                console.log('tipo: ', tipo);
+                if (tipo == "LINUX") {
+                    android = android + 1
+                }
+                if (tipo == "MACINTOSH") {
+                    mac = mac + 1
+                }
+                if (tipo.includes("WINDOWS")) {
+                    wind = wind + 1
+                }
+            })
+
+            $("#MAC").text(mac);
+            $("#ANDROID").text(android);
+            $("#WIN").text(wind);
+
+        })
+    }
+    Cargar_Cant_Dispositivo()
+
+    //** POR LINEA DE TIEMPO */
     function Cargar_reporte() {
         let fecha_ini = $("#GRL_FECHA").val();
         // let fecha_fin = $("#fecha_fin").val();
@@ -140,55 +259,51 @@ $url_cargar_grafico_por_localidad = constant('URL') . 'principal/cargar_grafico_
             am4core.useTheme(am4themes_animated);
             // Themes end
 
-            var chart = am4core.create("chartdiv_Cargar_Por_Edad_grafico", am4charts.XYChart);
+            var chart = am4core.create("chartdiv_Cargar_Por_Edad_grafico", am4charts.XYChart3D);
 
             chart.data = data;
 
             chart.padding(40, 40, 40, 40);
 
-            var categoryAxis = chart.xAxes.push(new am4charts.CategoryAxis());
-            categoryAxis.renderer.grid.template.location = 0;
+            let categoryAxis = chart.xAxes.push(new am4charts.CategoryAxis());
             categoryAxis.dataFields.category = "rango_edad";
-            categoryAxis.renderer.minGridDistance = 60;
-            // categoryAxis.renderer.inversed = true;
-            categoryAxis.renderer.grid.template.disabled = true;
+            categoryAxis.renderer.labels.template.rotation = 270;
+            categoryAxis.renderer.labels.template.hideOversized = false;
+            categoryAxis.renderer.minGridDistance = 20;
+            categoryAxis.renderer.labels.template.horizontalCenter = "right";
+            categoryAxis.renderer.labels.template.verticalCenter = "middle";
+            categoryAxis.tooltip.label.rotation = 270;
+            categoryAxis.tooltip.label.horizontalCenter = "right";
+            categoryAxis.tooltip.label.verticalCenter = "middle";
 
-            var valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
-            valueAxis.min = 0;
-            valueAxis.extraMax = 0.1;
-            //valueAxis.rangeChangeEasing = am4core.ease.linear;
-            //valueAxis.rangeChangeDuration = 1500;
+            let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+            valueAxis.title.text = "";
+            valueAxis.title.fontWeight = "bold";
 
-            var series = chart.series.push(new am4charts.ColumnSeries());
-            series.dataFields.categoryX = "rango_edad";
+            // Create series
+            var series = chart.series.push(new am4charts.ColumnSeries3D());
             series.dataFields.valueY = "cantidad_personas";
-            series.tooltipText = "{valueY.value}"
-            series.columns.template.strokeOpacity = 0;
-            series.columns.template.column.cornerRadiusTopRight = 10;
-            series.columns.template.column.cornerRadiusTopLeft = 10;
-            //series.interpolationDuration = 1500;
-            //series.interpolationEasing = am4core.ease.linear;
-            var labelBullet = series.bullets.push(new am4charts.LabelBullet());
-            labelBullet.label.verticalCenter = "bottom";
-            labelBullet.label.dy = -10;
-            labelBullet.label.text = "{values.valueY.workingValue.formatNumber('#.')}";
+            series.dataFields.categoryX = "rango_edad";
+            series.name = "cantidad_personas";
+            series.tooltipText = "{categoryX}: [bold]{valueY}[/]";
+            series.columns.template.fillOpacity = .8;
 
-            chart.zoomOutButton.disabled = true;
+            var columnTemplate = series.columns.template;
+            columnTemplate.strokeWidth = 2;
+            columnTemplate.strokeOpacity = 1;
+            columnTemplate.stroke = am4core.color("#FFFFFF");
 
-            // as by default columns of the same series are of the same color, we add adapter which takes colors from chart.colors color set
-            series.columns.template.adapter.add("fill", function(fill, target) {
+            columnTemplate.adapter.add("fill", function(fill, target) {
                 return chart.colors.getIndex(target.dataItem.index);
-            });
+            })
 
-            // setInterval(function() {
-            //     am4core.array.each(chart.data, function(item) {
-            //         item.visits += Math.round(Math.random() * 200 - 100);
-            //         item.visits = Math.abs(item.visits);
-            //     })
-            //     chart.invalidateRawData();
-            // }, 2000)
+            columnTemplate.adapter.add("stroke", function(stroke, target) {
+                return chart.colors.getIndex(target.dataItem.index);
+            })
 
-            // categoryAxis.sortBySeries = series;
+            chart.cursor = new am4charts.XYCursor();
+            chart.cursor.lineX.strokeOpacity = 0;
+            chart.cursor.lineY.strokeOpacity = 0;
 
         }); // end am4core.ready()
     }
@@ -209,118 +324,40 @@ $url_cargar_grafico_por_localidad = constant('URL') . 'principal/cargar_grafico_
         am4core.ready(function() {
 
             // Themes begin
-            // am4core.useTheme(am4themes_animated);
-            // // Themes end
+            am4core.useTheme(am4themes_animated);
+            // Themes end
 
-            // // Create chart instance
-            // var chart = am4core.create("chartdiv_Cargar_Por_Edad_localidad", am4charts.PieChart);
-
-            // // Add data
-            // chart.data = data
-            // // Add and configure Series
-            // var pieSeries = chart.series.push(new am4charts.PieSeries());
-            // pieSeries.dataFields.value = "cantidad";
-            // pieSeries.dataFields.category = "localidad";
-            // pieSeries.slices.template.stroke = am4core.color("#fff");
-            // pieSeries.slices.template.strokeOpacity = 1;
-
-            // pieSeries.ticks.template.disabled = true;
-            // pieSeries.alignLabels = false;
-            // pieSeries.labels.template.text = "{value.percent.formatNumber('#.0')}% ({value})";
-            // pieSeries.labels.template.radius = am4core.percent(-40);
-            // pieSeries.labels.template.fill = am4core.color("white");
-            // // This creates initial animation
-            // pieSeries.hiddenState.properties.opacity = 1;
-            // pieSeries.hiddenState.properties.endAngle = -90;
-            // pieSeries.hiddenState.properties.startAngle = -90;
-
-            // chart.hiddenState.properties.radius = am4core.percent(0);
-
-            // // Configurar la leyenda
-            // // chart.legend = new am4charts.Legend();
-            // // chart.legend.position = "right";
-
-            // chart.events.on("ready", function(event) {
-            //     // populate our custom legend when chart renders
-            //     chart.customLegend = document.getElementById('legend');
-            //     pieSeries.dataItems.each(function(row, i) {
-            //         var color = chart.colors.getIndex(i);
-            //         var percent = Math.round(row.values.value.percent * 100) / 100;
-            //         var value = row.value;
-            //         legend.innerHTML += '<div class="legend-item" id="legend-item-' + i + '" onclick="toggleSlice(' + i + ');" onmouseover="hoverSlice(' + i + ');" onmouseout="blurSlice(' + i + ');" style="color: ' + color + ';"><div class="legend-marker" style="background: ' + color + '"></div>' + row.category + '<div class="legend-value">' + value + ' | ' + percent + '%</div></div>';
-            //     });
-            // });
-
-            // function toggleSlice(item) {
-            //     var slice = pieSeries.dataItems.getIndex(item);
-            //     if (slice.visible) {
-            //         slice.hide();
-            //     } else {
-            //         slice.show();
-            //     }
-            // }
-
-            // function hoverSlice(item) {
-            //     var slice = pieSeries.slices.getIndex(item);
-            //     slice.isHover = true;
-            // }
-
-            // function blurSlice(item) {
-            //     var slice = pieSeries.slices.getIndex(item);
-            //     slice.isHover = false;
-            // }
-
-            var chart = am4core.create("chartdiv_Cargar_Por_Edad_localidad", am4charts.PieChart);
+            // Create chart instance
+            var chart = am4core.create("chartdiv_Cargar_Por_Edad_localidad", am4charts.PieChart3D);
 
             // Add data
             chart.data = data
-
             // Add and configure Series
-            var pieSeries = chart.series.push(new am4charts.PieSeries());
+            var pieSeries = chart.series.push(new am4charts.PieSeries3D());
             pieSeries.dataFields.value = "cantidad";
             pieSeries.dataFields.category = "localidad";
-            // pieSeries.labels.template.disabled = true;
+            pieSeries.slices.template.stroke = am4core.color("#fff");
+            pieSeries.slices.template.strokeOpacity = 1;
+
             pieSeries.ticks.template.disabled = true;
             pieSeries.alignLabels = false;
             pieSeries.labels.template.text = "{value.percent.formatNumber('#.0')}% ({value})";
             pieSeries.labels.template.radius = am4core.percent(-40);
             pieSeries.labels.template.fill = am4core.color("white");
-            chart.radius = am4core.percent(95);
+            // This creates initial animation
+            pieSeries.hiddenState.properties.opacity = 1;
+            pieSeries.hiddenState.properties.endAngle = -90;
+            pieSeries.hiddenState.properties.startAngle = -90;
 
-            // Create custom legend
-            chart.events.on("ready", function(event) {
-                // populate our custom legend when chart renders
-                chart.customLegend = document.getElementById('legend');
-                pieSeries.dataItems.each(function(row, i) {
-                    var color = chart.colors.getIndex(i);
-                    var percent = Math.round(row.values.value.percent * 100) / 100;
-                    var value = row.value;
-                    legend.innerHTML += '<div class="legend-item" id="legend-item-' + i + '" onclick="toggleSlice(' + i + ');" onmouseover="hoverSlice(' + i + ');" onmouseout="blurSlice(' + i + ');" style="color: ' + color + ';"><div class="legend-marker" style="background: ' + color + '"></div>' + row.category + '<div class="legend-value">' + value + ' | ' + percent + '%</div></div>';
-                });
-            });
+            chart.hiddenState.properties.radius = am4core.percent(0);
 
-            function toggleSlice(item) {
-                var slice = pieSeries.dataItems.getIndex(item);
-                if (slice.visible) {
-                    slice.hide();
-                } else {
-                    slice.show();
-                }
-            }
-
-            function hoverSlice(item) {
-                var slice = pieSeries.slices.getIndex(item);
-                slice.isHover = true;
-            }
-
-            function blurSlice(item) {
-                var slice = pieSeries.slices.getIndex(item);
-                slice.isHover = false;
-            }
-
+            // Configurar la leyenda
+            chart.legend = new am4charts.Legend();
+            chart.legend.position = "right";
+            chart.legend.scrollable = true;
+            chart.legend.maxHeight = 400;
+            chart.legend.labels.template.text = "({cantidad})[bold]{name}[/]";
         });
-
-
     }
     Cargar_Por_Localidad()
 

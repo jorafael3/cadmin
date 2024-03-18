@@ -104,4 +104,91 @@ class PrincipalModel extends Model
             print_r($query->errorInfo());
         }
     }
+
+    function Cargar_Cant_Consultas($parametros)
+    {
+        // $fecha_ini = $parametros["fecha_ini"];
+        // $fecha_fin = $parametros["fecha_fin"];
+
+        try {
+            $items = [];
+            $query = $this->db->connect()->prepare("SELECT 
+            'COMPLETAS' as estado,
+            count(*) as cantidad
+            from creditos_solicitados cs 
+            where cs.estado = 1
+            union ALL
+            select 
+            'INCOMPLETAS' as estado,
+            count(*)  as cantidad
+            from solo_telefonos st
+            where estado = 1
+            and numero not in(select numero from creditos_solicitados cs where estado= 1)
+            ");
+            // $query->bindParam(":fechaini", $fecha_ini, PDO::PARAM_STR);
+            // $query->bindParam(":fechafin", $fecha_fin, PDO::PARAM_STR);
+
+            if ($query->execute()) {
+                $result = $query->fetchAll(PDO::FETCH_ASSOC);
+                echo json_encode($result);
+                exit();
+            } else {
+                $err = $query->errorInfo();
+                echo json_encode($err);
+                exit();
+            }
+        } catch (PDOException $e) {
+            print_r($query->errorInfo());
+        }
+    }
+
+    function Cargar_Cant_Dispositivo($parametros)
+    {
+        // $fecha_ini = $parametros["fecha_ini"];
+        // $fecha_fin = $parametros["fecha_fin"];
+
+        try {
+            $items = [];
+            $query = $this->db->connect()->prepare("SELECT 
+            dispositivo 
+            from creditos_solicitados cs 
+            where cs.estado = 1
+            union ALL
+            select 
+            dispositivo 
+            from solo_telefonos st
+            where estado = 1
+            and numero not in(select numero from creditos_solicitados cs where estado= 1)
+            ");
+            // $query->bindParam(":fechaini", $fecha_ini, PDO::PARAM_STR);
+            // $query->bindParam(":fechafin", $fecha_fin, PDO::PARAM_STR);
+
+            if ($query->execute()) {
+                $result = $query->fetchAll(PDO::FETCH_ASSOC);
+                $ARRA = [];
+                foreach ($result as $row) {
+                    $disp = $row["dispositivo"];
+                    if (preg_match('/\(([^;]+);/', $disp, $matches)) {
+                        $tipo_dispositivo = $matches[1];
+                        array_push($ARRA, array(
+                            "tipo" => $tipo_dispositivo
+                        ));
+                    } else {
+                        array_push($ARRA, array(
+                            "tipo" => "NO ENCONTRADO"
+                        ));
+                    }
+                }
+
+                echo json_encode($ARRA);
+                exit();
+            } else {
+                $err = $query->errorInfo();
+                echo json_encode($err);
+                exit();
+            }
+        } catch (PDOException $e) {
+            print_r($query->errorInfo());
+        }
+    }
 }
