@@ -23,9 +23,9 @@ class ReportesModel extends Model
                 dr.*,
                 de.*
                 from creditos_solicitados cs
-                left join datos_reconocimiento dr
+                left join Datos_Reconocimiento dr
                 on dr.ID_UNICO  = cs.ID_UNICO 
-                left join datos_empleo de 
+                left join Datos_Empleo de 
                 on de.ID_UNICO = cs.ID_UNICO
                 where cs.API_SOL_ESTADO = 1
                 order by cs.fecha_creado asc";
