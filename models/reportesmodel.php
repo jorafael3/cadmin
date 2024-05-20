@@ -18,16 +18,16 @@ class ReportesModel extends Model
 
             if ($tipo == 1) {
 
-                $sql = "SELECT  
+                $sql = "SELECT 
                 cs.*,
-                st.terminos
+                dr.*,
+                de.*
                 from creditos_solicitados cs
-                left join solo_telefonos st 
-                on st.numero = cs.numero 
-                where cs.estado = 1 and st.estado = 1
-                -- where date(fecha_creado) between :fecha_ini and :fecha_fin
-                -- group by 
-                -- date(fecha_creado)
+                left join datos_reconocimiento dr
+                on dr.ID_UNICO  = cs.ID_UNICO 
+                left join datos_empleo de 
+                on de.ID_UNICO = cs.ID_UNICO
+                where cs.API_SOL_ESTADO = 1
                 order by cs.fecha_creado asc";
             } else {
 

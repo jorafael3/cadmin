@@ -43,9 +43,12 @@ $currentDateTime = date("Y-m-d");
                 </div>
 
                 <div class="col-12 pt-3">
-                    <table id="Tabla_reporte" style="width: 100%; font-size: 14px; font-weight: bold;" class="table-hover table-bordered table-striped">
+                    <div class="table-responsive">
+                        <table id="Tabla_reporte" style="width: 100%; font-size: 14px; font-weight: bold;" class="table-hover table-bordered table-striped">
 
-                    </table>
+                        </table>
+                    </div>
+
                 </div>
             </div>
         </div>

@@ -32,6 +32,7 @@ if ($SO  == "Linux") {
             tipo: tipo
         }
 
+        console.log('param: ', param);
 
         AjaxSendReceiveData(url_cargar_reporte, param, function(x) {
             console.log('x: ', x);
@@ -110,6 +111,27 @@ if ($SO  == "Linux") {
                 }, {
                     data: "correo",
                     title: "correo",
+                }, {
+                    data: "CANT_DOM",
+                    title: "ciudad domicilio",
+                }, {
+                    data: "DES_NIV_ESTUD",
+                    title: "nivel instruccion",
+                },{
+                    data: "SALARIO",
+                    title: "salario",
+                },{
+                    data: "CANT_NAC",
+                    title: "lugar de nacimiento",
+                },{
+                    data: "RELACION_DEPENDENCIA",
+                    title: "relacion de dependencia",
+                },{
+                    data: "CALIFICACION_TOT",
+                    title: "calificacion crediticia",
+                },{
+                    data: "API_SOL_montoMaximo",
+                    title: "cupo",
                 },
                 {
                     data: "ruta_archivo",
@@ -228,7 +250,7 @@ if ($SO  == "Linux") {
 
         })
     }
-    
+
 
     function AjaxSendReceiveData(url, data, callback) {
         var xmlhttp = new XMLHttpRequest();
