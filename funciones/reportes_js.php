@@ -21,7 +21,15 @@ if ($SO  == "Linux") {
 
     function Cargar_Consultas() {
 
-        AjaxSendReceiveData(url_Cargar_Consultas, [], function(x) {
+        let fecha_ini = $("#fecha_ini").val();
+        let fecha_fin = $("#fecha_fin").val();
+
+        let param = {
+            fecha_ini: fecha_ini,
+            fecha_fin: fecha_fin,
+        }
+
+        AjaxSendReceiveData(url_Cargar_Consultas, param, function(x) {
             console.log('x: ', x);
             if (x.success) {
 

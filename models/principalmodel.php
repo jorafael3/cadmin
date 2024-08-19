@@ -105,36 +105,48 @@ class PrincipalModel extends Model
         }
     }
 
-    function Cargar_Cant_Consultas($parametros)
+    function Cargar_Cant_Consultas($param)
     {
         // $fecha_ini = $parametros["fecha_ini"];
         // $fecha_fin = $parametros["fecha_fin"];
 
         try {
-            $items = [];
-            $query = $this->db->connect()->prepare("SELECT 
-            'COMPLETAS' as estado,
-            count(*) as cantidad
-            from creditos_solicitados cs 
-            where cs.estado = 1
-            union ALL
-            select 
-            'INCOMPLETAS' as estado,
-            count(*)  as cantidad
-            from solo_telefonos st
-            where estado = 1
-            and numero not in(select numero from creditos_solicitados cs where estado= 1)
-            ");
-            // $query->bindParam(":fechaini", $fecha_ini, PDO::PARAM_STR);
-            // $query->bindParam(":fechafin", $fecha_fin, PDO::PARAM_STR);
+            $fecha_ini = $param["fecha_ini"];
+            $fecha_fin = $param["fecha_fin"];
+
+            $SQL = "SELECT 
+            id_unico,
+            cedula ,
+            numero ,
+            fecha_consulta ,
+            archivo ,
+            datos
+            FROM creditossolicitados
+            WHERE
+                DATE(fecha_consulta) BETWEEN :inicio and :fin
+                ";
+
+            $query = $this->db->connect()->prepare($SQL);
+            $query->bindParam(":inicio", $fecha_ini, PDO::PARAM_STR);
+            $query->bindParam(":fin", $fecha_fin, PDO::PARAM_STR);
 
             if ($query->execute()) {
                 $result = $query->fetchAll(PDO::FETCH_ASSOC);
-                echo json_encode($result);
+                $res = array(
+                    "success" => true,
+                    "data" => $result,
+                    "sql" => ""
+                );
+                echo json_encode($res);
                 exit();
             } else {
                 $err = $query->errorInfo();
-                echo json_encode($err);
+                $res = array(
+                    "success" => false,
+                    "data" => $err,
+                    "sql" => ""
+                );
+                echo json_encode($res);
                 exit();
             }
         } catch (PDOException $e) {

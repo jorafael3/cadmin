@@ -177,13 +177,24 @@ class ReportesModel extends Model
 
             if (isset($_SESSION["Usuario"])) {
 
-                // $ORDEN = $param["ORDEN"];
+                $fecha_ini = $param["fecha_ini"];
+                $fecha_fin = $param["fecha_fin"];
 
 
-                $SQL = "SELECT * FROM creditossolicitados";
+                $SQL = "SELECT 
+                id_unico,
+                cedula ,
+                numero ,
+                fecha_consulta ,
+                archivo 
+                FROM creditossolicitados
+                WHERE
+                    DATE(fecha_consulta) BETWEEN :inicio and :fin
+                    ";
 
                 $query = $this->db->connect()->prepare($SQL);
-                // $query->bindParam(":ORDEN", $ORDEN, PDO::PARAM_STR);
+                $query->bindParam(":inicio", $fecha_ini, PDO::PARAM_STR);
+                $query->bindParam(":fin", $fecha_fin, PDO::PARAM_STR);
 
                 if ($query->execute()) {
                     $result = $query->fetchAll(PDO::FETCH_ASSOC);

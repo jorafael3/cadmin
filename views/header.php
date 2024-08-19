@@ -44,8 +44,8 @@
             <button type="button" class="button-close fa fa-times js__menu_close"></button>
             <div class="user">
                 <a href="#" class="avatar"><img src="<?php echo constant('URL') ?>public/assets/images/user.png" alt=""><span class="status online"></span></a>
-                <h5 class="name"><a href="#"><?php echo  $_SESSION['userName'] ?></a></h5>
-                <h5 class="position"><?php echo  $_SESSION['userName'] ?></h5>
+                <h5 class="name"><a href="#"><?php echo  $_SESSION['Usuario'] ?></a></h5>
+                <h5 class="position"><?php echo  $_SESSION['Usuario'] ?></h5>
                 <!-- /.name -->
                 
                 <!-- /.control-wrap -->

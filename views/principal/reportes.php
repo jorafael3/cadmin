@@ -3,6 +3,7 @@
 require 'views/header.php';
 date_default_timezone_set('America/Guayaquil');
 
+$current = date("Y-m-01");
 $currentDateTime = date("Y-m-d");
 
 ?>
