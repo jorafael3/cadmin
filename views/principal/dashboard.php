@@ -60,7 +60,7 @@ $currentDateTime = date("Y-m-d");
                             <input id="fecha_fin" type="date" class="form-control" value="<?php echo $currentDateTime ?>">
                         </div>
                         <div class="col-3">
-                            <button onclick="Cargar_Consultas()" class="btn btn-primary">Cargar</button>
+                            <button onclick="Cargar_Cant_Consultas()" class="btn btn-primary">Cargar</button>
                         </div>
                     </div>
                 </div>

@@ -28,17 +28,28 @@ $url_Cargar_Cant_Dispositivo = constant('URL') . 'principal/Cargar_Cant_Disposit
             fecha_fin: fecha_fin,
         }
         AjaxSendReceiveData(url_Cargar_Cant_Consultas, param, function(x) {
+            
             if (x.success) {
                 let datos = x.data
-                DATA_FULL = datos;
-                CONVERTIR_DATOS(datos);
-                setTimeout(() => {
 
-                    CANTIDAD_CONSULTAS(datos);
-                    RANGO_EDAD();
-                    LOCALIDAD();
-                    LINEA_TIEMPO();
-                }, 500);
+                datos.map(function(d){
+                    d.datos = JSON.parse(d.datos)
+                })
+
+
+                if (datos.length > 0) {
+                    DATA_FULL = datos;
+                    CONVERTIR_DATOS(datos);
+                    setTimeout(() => {
+                        CANTIDAD_CONSULTAS(datos);
+                        RANGO_EDAD();
+                        // LOCALIDAD();
+                        // LINEA_TIEMPO();
+                    }, 500);
+                } else {
+                    Mensaje("No hay datos que mostrar", "", "error")
+                }
+
             } else {
                 Mensaje("Error al cargar los datos, intentelo en un momento", "", "error")
             }
@@ -57,6 +68,8 @@ $url_Cargar_Cant_Dispositivo = constant('URL') . 'principal/Cargar_Cant_Disposit
         datos.map(function(x) {
             let d = x.datos
             d = JSON.parse(d);
+            console.log('d: ', d);
+            
             if (!Array.isArray(d)) {
                 DATOS_ARRAY_COMPLETOS.push(d);
             } else {
@@ -73,6 +86,8 @@ $url_Cargar_Cant_Dispositivo = constant('URL') . 'principal/Cargar_Cant_Disposit
         let ARRAY = [];
 
         DATOS.map(function(x) {
+
+            // x = JSON.parse(x)
             let edad = x.SOCIODEMOGRAFICO[0]["Edad"];
             let found = ARRAY.find(function(item) {
                 return item.edad === edad;
@@ -166,6 +181,9 @@ $url_Cargar_Cant_Dispositivo = constant('URL') . 'principal/Cargar_Cant_Disposit
         let ARRAY = [];
 
         DATOS.map(function(x) {
+
+            x = JSON.parse(x)
+
             let lugar = x.SOCIODEMOGRAFICO[0]["LUGAR_DOM_PROVINCIA"];
             if (CIUDAD == 1) {
                 lugar = x.SOCIODEMOGRAFICO[0]["LUGAR_DOM_CIUDAD"];
@@ -235,13 +253,14 @@ $url_Cargar_Cant_Dispositivo = constant('URL') . 'principal/Cargar_Cant_Disposit
         MES = 0;
         DIA = 1;
         $("#SECC_DIA").show(50);
-        LINEA_TIEMPO() 
+        LINEA_TIEMPO()
     })
+
     $("#BTN_MES").on("click", function(x) {
         MES = 1;
         DIA = 0;
         $("#SECC_DIA").hide();
-        LINEA_TIEMPO() 
+        LINEA_TIEMPO()
     })
 
 
@@ -249,10 +268,11 @@ $url_Cargar_Cant_Dispositivo = constant('URL') . 'principal/Cargar_Cant_Disposit
     function LINEA_TIEMPO() {
 
         let DATOS = DATA_FULL;
-        console.log("🚀 ~ LINEA_TIEMPO ~ DATOS:", DATOS)
+
         let ARRAY = [];
         let DIAS = [];
         DATOS.map(function(x) {
+            
             let lugar = x.fecha_consulta;
             lugar = moment(lugar).format("YYYY-MM-DD");
 
@@ -270,7 +290,7 @@ $url_Cargar_Cant_Dispositivo = constant('URL') . 'principal/Cargar_Cant_Disposit
                 DIAS.push(parseInt(moment(lugar).format("DD")));
             }
         });
-        console.log("🚀 ~ DATOS.map ~ DIAS:", DIAS)
+
 
         flatpickr("#fecha", {
             dateFormat: "Y-m-d",
@@ -286,10 +306,10 @@ $url_Cargar_Cant_Dispositivo = constant('URL') . 'principal/Cargar_Cant_Disposit
                 firstDayOfWeek: 1 // Configura el primer día de la semana (opcional)
             },
             onChange: function(selectedDates, dateStr, instance) {
-                console.log("🚀 ~ LINEA_TIEMPO ~ dateStr:", dateStr)
+
                 ARRAY = [];
                 let dataf = DATA_FULL.filter(item => moment(item.fecha_consulta).format("YYYY-MM-DD") == dateStr)
-                console.log("🚀 ~ LINEA_TIEMPO ~ dataf:", dataf)
+
                 dataf.map(function(x) {
                     let lugar = x.fecha_consulta;
                     lugar = moment(lugar).format("YYYY-MM-DDTHH:00:00");
@@ -307,7 +327,7 @@ $url_Cargar_Cant_Dispositivo = constant('URL') . 'principal/Cargar_Cant_Disposit
                         ARRAY.push(b);
                     }
                 });
-                console.log("🚀 ~ dataf.map ~ ARRAY:", ARRAY)
+
                 GRAFICO_MES(ARRAY);
                 // selectedDates es un array de fechas seleccionadas
                 // dateStr es la fecha seleccionada en formato de cadena
