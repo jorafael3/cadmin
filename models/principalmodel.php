@@ -8,6 +8,72 @@ class PrincipalModel extends Model
     }
 
 
+    function Cargar_Cantidad_Total($parametros)
+    {
+        $fecha_ini = $parametros["fecha_ini"];
+        $fecha_fin = $parametros["fecha_fin"];
+
+        try {
+            $items = [];
+            $query = $this->db->connect()->prepare("SELECT
+                    'DEMO' as CONSULTA,
+                    cedula, 
+                    IFNULL(numero,'') as numero ,
+                    fecha as fecha_consulta,
+                    IFNULL(URL_CONSULTA,'') as API,
+                    IFNULL(comercio,'') as comercio,
+                    IFNULL(datos,'') as datos
+                    from encript_agua ea 
+                    where DATE(fecha) BETWEEN :fechaini and :fechafin
+                UNION
+                select 
+                    'SOLID' as CONSULTA,
+                    cedula,
+                    IFNULL(numero,'')as numero,
+                    fecha_consulta,
+                    IFNULL(api,'') as API,
+                    IFNULL(mercado,'') as comercio,
+                    IFNULL(datos,'') as datos 
+                    from creditossolicitados c   
+                where DATE(c.fecha_consulta) BETWEEN :fechaini and :fechafin
+            ");
+            $query->bindParam(":fechaini", $fecha_ini, PDO::PARAM_STR);
+            $query->bindParam(":fechafin", $fecha_fin, PDO::PARAM_STR);
+
+            if ($query->execute()) {
+                $result = $query->fetchAll(PDO::FETCH_ASSOC);
+                $res = array(
+                    "success" => true,
+                    "data" => $result,
+                    "message" => "",
+                    "sql" => ""
+                );
+                echo json_encode($res);
+                exit();
+            } else {
+                $err = $query->errorInfo();
+                $res = array(
+                    "success" => false,
+                    "data" => [],
+                    "message" => $err,
+                    "sql" => ""
+                );
+                echo json_encode($res);
+                exit();
+            }
+        } catch (PDOException $e) {
+            $res = array(
+                "success" => false,
+                "data" => [],
+                "message" => $e,
+                "sql" => ""
+            );
+            echo json_encode($res);
+            exit();
+        }
+    }
+
+
     function cargar_grafico_linea_horas($parametros)
     {
         $fecha_ini = $parametros["fecha_ini"];

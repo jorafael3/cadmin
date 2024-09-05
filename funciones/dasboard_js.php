@@ -6,6 +6,11 @@ $url_cargar_grafico_por_localidad = constant('URL') . 'principal/cargar_grafico_
 $url_Cargar_Cant_Consultas = constant('URL') . 'principal/Cargar_Cant_Consultas/';
 $url_Cargar_Cant_Dispositivo = constant('URL') . 'principal/Cargar_Cant_Dispositivo/';
 
+
+$url_Cargar_Cantidad_Total = constant('URL') . 'principal/Cargar_Cantidad_Total/';
+
+
+
 ?>
 
 <script>
@@ -15,65 +20,78 @@ $url_Cargar_Cant_Dispositivo = constant('URL') . 'principal/Cargar_Cant_Disposit
     var url_Cargar_Cant_Consultas = '<?php echo $url_Cargar_Cant_Consultas ?>';
     var url_Cargar_Cant_Dispositivo = '<?php echo $url_Cargar_Cant_Dispositivo ?>';
 
+    var url_Cargar_Cantidad_Total = '<?php echo $url_Cargar_Cantidad_Total ?>';
+
+
+
     //** CANTODAD DE CONSULTAS */
     var DATA_FULL = [];
     var DATOS_ARRAY_COMPLETOS = [];
     var DATOS_ARRAY_INCOMPLETOS = [];
 
-    function Cargar_Cant_Consultas() {
+
+    var DATOS_DEMO = [];
+    var DATOS_SOLI = [];
+
+    var ARRAY_DATA_DEMO = [];
+    var ARRAY_DATA_SOLI = [];
+
+
+
+
+    //***** */
+
+    function Cargar_Cantidad_Total() {
         let fecha_ini = $("#fecha_ini").val();
         let fecha_fin = $("#fecha_fin").val();
         let param = {
             fecha_ini: fecha_ini,
             fecha_fin: fecha_fin,
         }
-        AjaxSendReceiveData(url_Cargar_Cant_Consultas, param, function(x) {
-            
+        AjaxSendReceiveData(url_Cargar_Cantidad_Total, param, function(x) {
+
             if (x.success) {
                 let datos = x.data
-
-                datos.map(function(d){
-                    d.datos = JSON.parse(d.datos)
-                })
-
-
-                if (datos.length > 0) {
-                    DATA_FULL = datos;
-                    CONVERTIR_DATOS(datos);
-                    setTimeout(() => {
-                        CANTIDAD_CONSULTAS(datos);
-                        RANGO_EDAD();
-                        // LOCALIDAD();
-                        // LINEA_TIEMPO();
-                    }, 500);
-                } else {
-                    Mensaje("No hay datos que mostrar", "", "error")
-                }
+                let datos_demo = datos.filter(i => i.CONSULTA == 'DEMO');
+                DATOS_DEMO = datos_demo;
+                let datos_soli = datos.filter(i => i.CONSULTA == 'SOLID');
+                DATOS_SOLI = datos_soli;
+                PARSEAR_DATA(DATOS_DEMO, DATOS_SOLI);
+                setTimeout(() => {
+                    CARTILLA_TOTAL();
+                    CARTILLA_ERRORES();
+                    CARTILLA_DEMO();
+                    CARTILLA_SOLIDA()
+                    POR_EDAD();
+                    POR_LOCALIDAD();
+                    LINEA_TIEMPO();
+                }, 500);
 
             } else {
                 Mensaje("Error al cargar los datos, intentelo en un momento", "", "error")
             }
         });
-    }
-    Cargar_Cant_Consultas();
 
-    function CANTIDAD_CONSULTAS(datos) {
-        let CANTIDAD = datos.length;
-        $("#CANTIDAD_CONSULTAS").text(CANTIDAD);
-        $("#CANTIDAD_CONSULTAS_DEMOGRAFICA").text(DATOS_ARRAY_INCOMPLETOS.length);
-        $("#CANTIDAD_CONSULTAS_SOLIDARIO").text(DATOS_ARRAY_COMPLETOS.length);
     }
 
-    function CONVERTIR_DATOS(datos) {
-        datos.map(function(x) {
-            let d = x.datos
-            d = JSON.parse(d);
-            console.log('d: ', d);
-            
-            if (!Array.isArray(d)) {
-                DATOS_ARRAY_COMPLETOS.push(d);
+    function PARSEAR_DATA(DEMO, SOLI) {
+        ARRAY_DATA_DEMO = [];
+        ARRAY_DATA_SOLI = [];
+        DEMO.map(function(x) {
+            if (x["datos"].includes("Error") || x["datos"] == '') {
+
             } else {
-                DATOS_ARRAY_INCOMPLETOS.push(x);
+                let d = JSON.parse(x.datos);
+                ARRAY_DATA_DEMO.push(d[0])
+            }
+        });
+
+        SOLI.map(function(x) {
+            if (x["datos"] == []) {
+
+            } else {
+                let d = JSON.parse(x.datos);
+                ARRAY_DATA_SOLI.push(d)
             }
         });
 
@@ -81,12 +99,61 @@ $url_Cargar_Cant_Dispositivo = constant('URL') . 'principal/Cargar_Cant_Disposit
 
     }
 
-    function RANGO_EDAD() {
-        let DATOS = DATOS_ARRAY_COMPLETOS;
+    Cargar_Cantidad_Total();
+
+
+    function CARTILLA_TOTAL() {
+        let cant = DATOS_DEMO.length + DATOS_SOLI.length
+        $("#CANTIDAD_CONSULTAS").text(cant);
+    }
+
+    function CARTILLA_ERRORES() {
+        let cant = DATOS_DEMO
+        let con = 0;
+        cant.map(function(x) {
+            if (x["datos"].includes("Error")) {
+                con = con + 1
+            }
+
+        });
+
+        $("#CANTIDAD_CONSULTAS_ERRORES").text(con);
+
+    }
+
+    function CARTILLA_DEMO() {
+        let cant = DATOS_DEMO.length
+        $("#CANTIDAD_CONSULTAS_DEMOGRAFICA").text(cant);
+    }
+
+    function CARTILLA_SOLIDA() {
+        let cant = DATOS_SOLI.length
+        $("#CANTIDAD_CONSULTAS_SOLIDARIO").text(cant);
+    }
+
+
+    var EDAD_CAMBIO = 0
+
+    $("#BTN_EDAD_DEMO").on("click", function(x) {
+        EDAD_CAMBIO = 0;
+        POR_EDAD()
+    });
+
+    $("#BTN_EDAD_SOLI").on("click", function(x) {
+        EDAD_CAMBIO = 1;
+        POR_EDAD()
+    })
+
+
+    function POR_EDAD() {
+
+        let DATOS = ARRAY_DATA_DEMO;
+
+        if (EDAD_CAMBIO == 1) {
+            DATOS = ARRAY_DATA_SOLI;
+        }
         let ARRAY = [];
-
         DATOS.map(function(x) {
-
             // x = JSON.parse(x)
             let edad = x.SOCIODEMOGRAFICO[0]["Edad"];
             let found = ARRAY.find(function(item) {
@@ -103,6 +170,7 @@ $url_Cargar_Cant_Dispositivo = constant('URL') . 'principal/Cargar_Cant_Disposit
             }
         });
 
+        ARRAY.sort((a, b) => a.edad - b.edad);
 
         am4core.ready(function() {
 
@@ -160,29 +228,41 @@ $url_Cargar_Cant_Dispositivo = constant('URL') . 'principal/Cargar_Cant_Disposit
     }
 
 
+    var LOCALIDAD_CAMBIO = 0
     var PROVINCIA = 1;
     var CIUDAD = 0;
+
+    $("#BTN_LOC_DEMO").on("click", function(x) {
+        LOCALIDAD_CAMBIO = 0;
+        POR_LOCALIDAD()
+    });
+
+    $("#BTN_LOC_SOLI").on("click", function(x) {
+        LOCALIDAD_CAMBIO = 1;
+        POR_LOCALIDAD()
+    })
 
     $("#BTN_LOC_PROV").on("click", function(x) {
         PROVINCIA = 1;
         CIUDAD = 0;
-        LOCALIDAD()
+        POR_LOCALIDAD()
     });
 
     $("#BTN_LOC_CIUD").on("click", function(x) {
         PROVINCIA = 0;
         CIUDAD = 1;
-        LOCALIDAD()
+        POR_LOCALIDAD()
     })
 
-    function LOCALIDAD() {
+    function POR_LOCALIDAD() {
+        let DATOS = ARRAY_DATA_DEMO;
 
-        let DATOS = DATOS_ARRAY_COMPLETOS;
+        if (LOCALIDAD_CAMBIO == 1) {
+            DATOS = ARRAY_DATA_SOLI;
+        }
         let ARRAY = [];
 
         DATOS.map(function(x) {
-
-            x = JSON.parse(x)
 
             let lugar = x.SOCIODEMOGRAFICO[0]["LUGAR_DOM_PROVINCIA"];
             if (CIUDAD == 1) {
@@ -203,6 +283,7 @@ $url_Cargar_Cant_Dispositivo = constant('URL') . 'principal/Cargar_Cant_Disposit
             }
         });
 
+        
 
         am4core.ready(function() {
 
@@ -241,14 +322,25 @@ $url_Cargar_Cant_Dispositivo = constant('URL') . 'principal/Cargar_Cant_Disposit
             chart.legend.maxHeight = 400;
             chart.legend.labels.template.text = "({cantidad})[bold]{name}[/]";
         });
+
     }
 
 
-
+    var LINEA_CAMBIO = 0;
     var MES = 1;
     var DIA = 0;
 
+    $("#BTN_LIN_DEMO").on("click", function(x) {
+        LINEA_CAMBIO = 0;
+        LINEA_TIEMPO()
+    })
 
+    $("#BTN_LIN_SOLI").on("click", function(x) {
+        LINEA_CAMBIO = 1;
+        LINEA_TIEMPO()
+    })
+
+    
     $("#BTN_DIA").on("click", function(x) {
         MES = 0;
         DIA = 1;
@@ -267,15 +359,17 @@ $url_Cargar_Cant_Dispositivo = constant('URL') . 'principal/Cargar_Cant_Disposit
 
     function LINEA_TIEMPO() {
 
-        let DATOS = DATA_FULL;
+        let DATOS = DATOS_DEMO;
+
+        if (LINEA_CAMBIO == 1) {
+            DATOS = DATOS_SOLI;
+        }
 
         let ARRAY = [];
         let DIAS = [];
         DATOS.map(function(x) {
-            
             let lugar = x.fecha_consulta;
             lugar = moment(lugar).format("YYYY-MM-DD");
-
             let found = ARRAY.find(function(item) {
                 return item.date === lugar;
             });
@@ -290,7 +384,7 @@ $url_Cargar_Cant_Dispositivo = constant('URL') . 'principal/Cargar_Cant_Disposit
                 DIAS.push(parseInt(moment(lugar).format("DD")));
             }
         });
-
+        console.log('ARRAY: ', ARRAY);
 
         flatpickr("#fecha", {
             dateFormat: "Y-m-d",
@@ -308,7 +402,7 @@ $url_Cargar_Cant_Dispositivo = constant('URL') . 'principal/Cargar_Cant_Disposit
             onChange: function(selectedDates, dateStr, instance) {
 
                 ARRAY = [];
-                let dataf = DATA_FULL.filter(item => moment(item.fecha_consulta).format("YYYY-MM-DD") == dateStr)
+                let dataf = DATOS.filter(item => moment(item.fecha_consulta).format("YYYY-MM-DD") == dateStr)
 
                 dataf.map(function(x) {
                     let lugar = x.fecha_consulta;
@@ -344,9 +438,145 @@ $url_Cargar_Cant_Dispositivo = constant('URL') . 'principal/Cargar_Cant_Disposit
             GRAFICO_MES(ARRAY)
         }
 
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    function Cargar_Cant_Consultas() {
+        let fecha_ini = $("#fecha_ini").val();
+        let fecha_fin = $("#fecha_fin").val();
+        let param = {
+            fecha_ini: fecha_ini,
+            fecha_fin: fecha_fin,
+        }
+        AjaxSendReceiveData(url_Cargar_Cant_Consultas, param, function(x) {
+
+            if (x.success) {
+                let datos = x.data
+
+                datos.map(function(d) {
+                    d.datos = JSON.parse(d.datos)
+                })
+
+
+                if (datos.length > 0) {
+                    DATA_FULL = datos;
+                    CONVERTIR_DATOS(datos);
+                    setTimeout(() => {
+                        CANTIDAD_CONSULTAS(datos);
+                        RANGO_EDAD();
+                        // LOCALIDAD();
+                        // LINEA_TIEMPO();
+                    }, 500);
+                } else {
+                    Mensaje("No hay datos que mostrar", "", "error")
+                }
+
+            } else {
+                Mensaje("Error al cargar los datos, intentelo en un momento", "", "error")
+            }
+        });
+    }
+    // Cargar_Cant_Consultas();
+
+    function CANTIDAD_CONSULTAS(datos) {
+        let CANTIDAD = datos.length;
+        $("#CANTIDAD_CONSULTAS").text(CANTIDAD);
+        $("#CANTIDAD_CONSULTAS_DEMOGRAFICA").text(DATOS_ARRAY_INCOMPLETOS.length);
+        $("#CANTIDAD_CONSULTAS_SOLIDARIO").text(DATOS_ARRAY_COMPLETOS.length);
+    }
+
+    function CONVERTIR_DATOS(datos) {
+        datos.map(function(x) {
+            let d = x.datos
+            d = JSON.parse(d);
+
+            if (!Array.isArray(d)) {
+                DATOS_ARRAY_COMPLETOS.push(d);
+            } else {
+                DATOS_ARRAY_INCOMPLETOS.push(x);
+            }
+        });
+
 
 
     }
+
+    function RANGO_EDAD() {
+        let DATOS = DATOS_ARRAY_COMPLETOS;
+        let ARRAY = [];
+
+        DATOS.map(function(x) {
+
+            // x = JSON.parse(x)
+            let edad = x.SOCIODEMOGRAFICO[0]["Edad"];
+            let found = ARRAY.find(function(item) {
+                return item.edad === edad;
+            });
+            if (found) {
+                found.cantidad += 1;
+            } else {
+                let b = {
+                    edad: edad,
+                    cantidad: 1
+                };
+                ARRAY.push(b);
+            }
+        });
+
+
+
+    }
+
+
+    function LOCALIDAD() {
+
+        let DATOS = DATOS_ARRAY_COMPLETOS;
+        let ARRAY = [];
+
+        DATOS.map(function(x) {
+
+            x = JSON.parse(x)
+
+            let lugar = x.SOCIODEMOGRAFICO[0]["LUGAR_DOM_PROVINCIA"];
+            if (CIUDAD == 1) {
+                lugar = x.SOCIODEMOGRAFICO[0]["LUGAR_DOM_CIUDAD"];
+            }
+
+            let found = ARRAY.find(function(item) {
+                return item.localidad === lugar;
+            });
+            if (found) {
+                found.cantidad += 1;
+            } else {
+                let b = {
+                    localidad: lugar.trim(),
+                    cantidad: 1
+                };
+                ARRAY.push(b);
+            }
+        });
+
+
+
+    }
+
+
+
+
+
+
 
     function GRAFICO_MES(ARRAY) {
         am4core.ready(function() {

@@ -17,6 +17,23 @@ class Principal extends Controller
         $this->view->render('principal/dashboard');
     }
 
+
+    function Cargar_Cantidad_Total()
+    {
+        $array = json_decode(file_get_contents("php://input"), true);
+        $function = $this->model->Cargar_Cantidad_Total($array);
+    }
+
+
+
+
+
+
+
+
+
+
+
     function cargar_grafico_linea_horas()
     {
         $array = json_decode(file_get_contents("php://input"), true);

@@ -53,14 +53,14 @@ $currentDateTime = date("Y-m-d");
             <div class="card shadow p-2">
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-3">
+                        <div class="col-sm-6 col-md-4">
                             <input id="fecha_ini" type="date" class="form-control" value="<?php echo $current ?>">
                         </div>
-                        <div class="col-3">
+                        <div class="col-sm-6 col-md-4">
                             <input id="fecha_fin" type="date" class="form-control" value="<?php echo $currentDateTime ?>">
                         </div>
-                        <div class="col-3">
-                            <button onclick="Cargar_Cant_Consultas()" class="btn btn-primary">Cargar</button>
+                        <div class="col-sm-6 col-md-3">
+                            <button onclick="Cargar_Cantidad_Total()" class="btn btn-primary">Cargar</button>
                         </div>
                     </div>
                 </div>
@@ -72,7 +72,7 @@ $currentDateTime = date("Y-m-d");
 
 <div class="col-12 p-1">
     <div class="row">
-        <div class="col-3">
+        <div class="col-sm-6 col-md-3">
             <div class="card p-2">
                 <div class="card-body">
                     <h4 class="text-start fw-bold">Consultas realizadas</h4>
@@ -81,7 +81,16 @@ $currentDateTime = date("Y-m-d");
                 </div>
             </div>
         </div>
-        <div class="col-3">
+        <div class="col-sm-6 col-md-3">
+            <div class="card p-2">
+                <div class="card-body">
+                    <h4 class="text-start fw-bold text-danger">Consultas con errores</h4>
+                    <h6 class="text-muted">Cedula no valida...</h6>
+                    <h1 class="fw-bold m-4" style="font-size: 40px;" id="CANTIDAD_CONSULTAS_ERRORES"></h1>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-md-3">
             <div class="card p-2">
                 <div class="card-body">
                     <h4 class="text-start fw-bold">Consultas Demografica</h4>
@@ -90,7 +99,7 @@ $currentDateTime = date("Y-m-d");
                 </div>
             </div>
         </div>
-        <div class="col-3">
+        <div class="col-sm-6 col-md-3">
             <div class="card p-2">
                 <div class="card-body">
                     <h4 class="text-start fw-bold">Consultas solidario</h4>
@@ -104,21 +113,23 @@ $currentDateTime = date("Y-m-d");
 
 <div class="col-12 p-1">
     <div class="row">
-        <div class="col-6">
+        <div class="col-sm-12 col-md-6">
             <div class="card">
                 <div class="card-body">
                     <h2 class="p-1 text-center">Rango de edad</h2>
-                    <br>
-                    <br>
+                    <button class="btn btn-sm btn-success" id="BTN_EDAD_DEMO">DEMOGRAFICO</button>
+                    <button class="btn btn-sm btn-info" id="BTN_EDAD_SOLI">SOLIDARIO</button>
                     <div style="height: 350px;" id="chartdiv_Cargar_Por_Edad_grafico"></div>
                 </div>
             </div>
         </div>
-        <div class="col-6">
+        <div class="col-sm-12 col-md-6">
             <div class="card">
                 <div class="card-body">
 
                     <h2 class="p-1 text-center">Por localidad</h2>
+                    <button class="btn btn-sm btn-success" id="BTN_LOC_DEMO">DEMOGRAFICO</button>
+                    <button class="btn btn-sm btn-info" id="BTN_LOC_SOLI">SOLIDARIO</button>
                     <button class="btn btn-sm" id="BTN_LOC_PROV">Provincia</button>
                     <button class="btn btn-sm" id="BTN_LOC_CIUD">Ciudad</button>
                     <div style="height: 350px;" id="chartdiv_Cargar_Por_Edad_localidad"></div>
@@ -137,9 +148,11 @@ $currentDateTime = date("Y-m-d");
                 <div class="card-body">
 
                     <div class="col-12">
-                        <div class="col-4 mb-2">
-                            <button id="BTN_MES" class="btn btn-sm btn-success">Rango en curso</button>
-                            <button id="BTN_DIA" class="btn btn-sm btn-info">Por dia</button>
+                        <div class="col-12 mb-2">
+                            <button class="btn btn-sm btn-success" id="BTN_LIN_DEMO">DEMOGRAFICO</button>
+                            <button class="btn btn-sm btn-info" id="BTN_LIN_SOLI">SOLIDARIO</button>
+                            <button id="BTN_MES" class="btn btn-sm btn-light">Rango en curso</button>
+                            <button id="BTN_DIA" class="btn btn-sm btn-light">Por dia</button>
 
                             <div id="SECC_DIA" style="display: none;">
                                 <h5>Seleccione dia</h5>
