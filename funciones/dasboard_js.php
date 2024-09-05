@@ -65,6 +65,7 @@ $url_Cargar_Cantidad_Total = constant('URL') . 'principal/Cargar_Cantidad_Total/
                     POR_EDAD();
                     POR_LOCALIDAD();
                     LINEA_TIEMPO();
+                    POR_COMERCIO()
                 }, 500);
 
             } else {
@@ -282,8 +283,7 @@ $url_Cargar_Cantidad_Total = constant('URL') . 'principal/Cargar_Cantidad_Total/
                 ARRAY.push(b);
             }
         });
-
-        
+        ARRAY.sort((a, b) => b.cantidad - a.cantidad);
 
         am4core.ready(function() {
 
@@ -325,6 +325,85 @@ $url_Cargar_Cantidad_Total = constant('URL') . 'principal/Cargar_Cantidad_Total/
 
     }
 
+    function POR_COMERCIO() {
+        let ARRAY = [];
+        let DATOS = DATOS_DEMO;
+        DATOS.map(function(x) {
+            let lugar = x.comercio;
+            if (lugar == '') {
+                lugar = "SIN DEFINIR"
+            }
+            let found = ARRAY.find(function(item) {
+                return item.comercio === lugar;
+            });
+            if (found) {
+                found.cantidad += 1;
+            } else {
+                let b = {
+                    comercio: lugar.trim(),
+                    cantidad: 1
+                };
+                ARRAY.push(b);
+            }
+        });
+        console.log('ARRAY: ', ARRAY);
+        ARRAY.sort((a, b) => a.cantidad - b.cantidad);
+
+        am4core.ready(function() {
+            am4core.useTheme(am4themes_animated);
+            // Themes end
+
+            // Create chart instance
+            var chart = am4core.create("chartdiv_Cargar_Por_comercio", am4charts.XYChart);
+            chart.scrollbarX = new am4core.Scrollbar();
+            chart.data = ARRAY
+            // Themes begin
+            var categoryAxis = chart.xAxes.push(new am4charts.CategoryAxis());
+            categoryAxis.dataFields.category = "comercio";
+            categoryAxis.renderer.grid.template.location = 0;
+            categoryAxis.renderer.minGridDistance = 30;
+            categoryAxis.renderer.labels.template.horizontalCenter = "right";
+            categoryAxis.renderer.labels.template.verticalCenter = "middle";
+            categoryAxis.renderer.labels.template.rotation = 270;
+            categoryAxis.tooltip.disabled = true;
+            categoryAxis.renderer.minHeight = 110;
+
+            var valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+            valueAxis.renderer.minWidth = 50;
+
+            // Create series
+            var series = chart.series.push(new am4charts.ColumnSeries());
+            series.sequencedInterpolation = true;
+            series.dataFields.valueY = "cantidad";
+            series.dataFields.categoryX = "comercio";
+            series.tooltipText = "[{categoryX}: bold]{valueY}[/]";
+            series.columns.template.strokeWidth = 0;
+
+            series.tooltip.pointerOrientation = "vertical";
+
+            series.columns.template.column.cornerRadiusTopLeft = 10;
+            series.columns.template.column.cornerRadiusTopRight = 10;
+            series.columns.template.column.fillOpacity = 0.8;
+
+            // on hover, make corner radiuses bigger
+            var hoverState = series.columns.template.column.states.create("hover");
+            hoverState.properties.cornerRadiusTopLeft = 0;
+            hoverState.properties.cornerRadiusTopRight = 0;
+            hoverState.properties.fillOpacity = 1;
+
+            series.columns.template.adapter.add("fill", function(fill, target) {
+                return chart.colors.getIndex(target.dataItem.index);
+            });
+
+            // Cursor
+            chart.cursor = new am4charts.XYCursor();
+
+        }); // end am4core.ready()
+    }
+
+
+
+
 
     var LINEA_CAMBIO = 0;
     var MES = 1;
@@ -340,7 +419,6 @@ $url_Cargar_Cantidad_Total = constant('URL') . 'principal/Cargar_Cantidad_Total/
         LINEA_TIEMPO()
     })
 
-    
     $("#BTN_DIA").on("click", function(x) {
         MES = 0;
         DIA = 1;
@@ -354,8 +432,6 @@ $url_Cargar_Cantidad_Total = constant('URL') . 'principal/Cargar_Cantidad_Total/
         $("#SECC_DIA").hide();
         LINEA_TIEMPO()
     })
-
-
 
     function LINEA_TIEMPO() {
 
@@ -439,144 +515,6 @@ $url_Cargar_Cantidad_Total = constant('URL') . 'principal/Cargar_Cantidad_Total/
         }
 
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    function Cargar_Cant_Consultas() {
-        let fecha_ini = $("#fecha_ini").val();
-        let fecha_fin = $("#fecha_fin").val();
-        let param = {
-            fecha_ini: fecha_ini,
-            fecha_fin: fecha_fin,
-        }
-        AjaxSendReceiveData(url_Cargar_Cant_Consultas, param, function(x) {
-
-            if (x.success) {
-                let datos = x.data
-
-                datos.map(function(d) {
-                    d.datos = JSON.parse(d.datos)
-                })
-
-
-                if (datos.length > 0) {
-                    DATA_FULL = datos;
-                    CONVERTIR_DATOS(datos);
-                    setTimeout(() => {
-                        CANTIDAD_CONSULTAS(datos);
-                        RANGO_EDAD();
-                        // LOCALIDAD();
-                        // LINEA_TIEMPO();
-                    }, 500);
-                } else {
-                    Mensaje("No hay datos que mostrar", "", "error")
-                }
-
-            } else {
-                Mensaje("Error al cargar los datos, intentelo en un momento", "", "error")
-            }
-        });
-    }
-    // Cargar_Cant_Consultas();
-
-    function CANTIDAD_CONSULTAS(datos) {
-        let CANTIDAD = datos.length;
-        $("#CANTIDAD_CONSULTAS").text(CANTIDAD);
-        $("#CANTIDAD_CONSULTAS_DEMOGRAFICA").text(DATOS_ARRAY_INCOMPLETOS.length);
-        $("#CANTIDAD_CONSULTAS_SOLIDARIO").text(DATOS_ARRAY_COMPLETOS.length);
-    }
-
-    function CONVERTIR_DATOS(datos) {
-        datos.map(function(x) {
-            let d = x.datos
-            d = JSON.parse(d);
-
-            if (!Array.isArray(d)) {
-                DATOS_ARRAY_COMPLETOS.push(d);
-            } else {
-                DATOS_ARRAY_INCOMPLETOS.push(x);
-            }
-        });
-
-
-
-    }
-
-    function RANGO_EDAD() {
-        let DATOS = DATOS_ARRAY_COMPLETOS;
-        let ARRAY = [];
-
-        DATOS.map(function(x) {
-
-            // x = JSON.parse(x)
-            let edad = x.SOCIODEMOGRAFICO[0]["Edad"];
-            let found = ARRAY.find(function(item) {
-                return item.edad === edad;
-            });
-            if (found) {
-                found.cantidad += 1;
-            } else {
-                let b = {
-                    edad: edad,
-                    cantidad: 1
-                };
-                ARRAY.push(b);
-            }
-        });
-
-
-
-    }
-
-
-    function LOCALIDAD() {
-
-        let DATOS = DATOS_ARRAY_COMPLETOS;
-        let ARRAY = [];
-
-        DATOS.map(function(x) {
-
-            x = JSON.parse(x)
-
-            let lugar = x.SOCIODEMOGRAFICO[0]["LUGAR_DOM_PROVINCIA"];
-            if (CIUDAD == 1) {
-                lugar = x.SOCIODEMOGRAFICO[0]["LUGAR_DOM_CIUDAD"];
-            }
-
-            let found = ARRAY.find(function(item) {
-                return item.localidad === lugar;
-            });
-            if (found) {
-                found.cantidad += 1;
-            } else {
-                let b = {
-                    localidad: lugar.trim(),
-                    cantidad: 1
-                };
-                ARRAY.push(b);
-            }
-        });
-
-
-
-    }
-
-
-
-
-
-
 
     function GRAFICO_MES(ARRAY) {
         am4core.ready(function() {
@@ -684,223 +622,4 @@ $url_Cargar_Cantidad_Total = constant('URL') . 'principal/Cargar_Cantidad_Total/
 
         }); // am4core.ready()
     }
-
-
-
-
-
-
-
-    // function Cargar_Cant_Consultas_Grafico(datos) {
-
-
-
-    //     am4core.ready(function() {
-
-    //         // Themes begin
-    //         am4core.useTheme(am4themes_animated);
-    //         // Themes end
-
-    //         var chart = am4core.create("Cargar_Cant_Consultas_Grafico", am4charts.XYChart3D);
-
-    //         chart.data = datos
-    //         chart.padding(40, 40, 40, 40);
-
-    //         let categoryAxis = chart.xAxes.push(new am4charts.CategoryAxis());
-    //         categoryAxis.dataFields.category = "estado";
-    //         categoryAxis.renderer.labels.template.rotation = 0;
-    //         categoryAxis.renderer.labels.template.hideOversized = false;
-    //         categoryAxis.renderer.minGridDistance = 20;
-    //         categoryAxis.tooltip.label.rotation = 0;
-
-    //         let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
-    //         valueAxis.title.text = "";
-    //         valueAxis.title.fontWeight = "bold";
-
-    //         // Create series
-    //         var series = chart.series.push(new am4charts.ColumnSeries3D());
-    //         series.dataFields.valueY = "cantidad";
-    //         series.dataFields.categoryX = "estado";
-    //         series.name = "cantidad";
-    //         series.tooltipText = "{categoryX}: [bold]{valueY}[/]";
-    //         series.columns.template.fillOpacity = .8;
-    //         chart.colors.list = [
-    //             am4core.color("#52BE80"),
-    //             am4core.color("#F4D03F"),
-    //         ];
-
-    //         var columnTemplate = series.columns.template;
-    //         columnTemplate.strokeWidth = 2;
-    //         columnTemplate.strokeOpacity = 1;
-    //         columnTemplate.stroke = am4core.color("#FFFFFF");
-
-    //         columnTemplate.adapter.add("fill", function(fill, target) {
-    //             return chart.colors.getIndex(target.dataItem.index);
-    //         })
-
-    //         columnTemplate.adapter.add("stroke", function(stroke, target) {
-    //             return chart.colors.getIndex(target.dataItem.index);
-    //         })
-
-    //         // Agregar etiquetas de texto encima de las barras
-    //         var labelBullet = series.bullets.push(new am4charts.LabelBullet());
-    //         labelBullet.label.text = "{valueY}";
-    //         labelBullet.label.dy = -10; // Ajuste de la posición vertical de la etiqueta
-    //         labelBullet.label.truncate = false;
-    //         labelBullet.label.hideOversized = false;
-    //         labelBullet.label.fontSize = 30; // Ajuste del tamaño de la fuente
-    //         labelBullet.label.fontWeight = "bold"; // Establecer negrita
-    //         chart.cursor = new am4charts.XYCursor();
-    //         chart.cursor.lineX.strokeOpacity = 0;
-    //         chart.cursor.lineY.strokeOpacity = 0;
-
-    //     }); // end am4core.ready()
-    // }
-
-    // //*** POR DISPOSITOVO */
-
-    // function Cargar_Cant_Dispositivo() {
-
-    //     AjaxSendReceiveData(url_Cargar_Cant_Dispositivo, [], function(x) {
-    //         
-    //         let wind = 0;
-    //         let android = 0;
-    //         let mac = 0;
-
-    //         x.map(function(y) {
-    //             let tipo = (y.tipo).toUpperCase()
-    //             
-    //             if (tipo == "LINUX") {
-    //                 android = android + 1
-    //             }
-    //             if (tipo == "MACINTOSH") {
-    //                 mac = mac + 1
-    //             }
-    //             if (tipo.includes("WINDOWS")) {
-    //                 wind = wind + 1
-    //             }
-    //         })
-
-    //         $("#MAC").text(mac);
-    //         $("#ANDROID").text(android);
-    //         $("#WIN").text(wind);
-
-    //     })
-    // }
-    // Cargar_Cant_Dispositivo()
-
-    // //** POR LINEA DE TIEMPO */
-    // function Cargar_reporte() {
-    //     let fecha_ini = $("#GRL_FECHA").val();
-    //     // let fecha_fin = $("#fecha_fin").val();
-    //     // let tipo = $("#flexRadioDefault1").is(":checked") == true ? 1 : 0;
-
-    //     let param = {
-    //         fecha_ini: moment(fecha_ini).format("YYYY-MM-DD"),
-    //         fecha_fin: moment(fecha_ini).format("YYYY-MM-DD"),
-    //     }
-    //     // 
-
-
-    //     AjaxSendReceiveData(url_cargar_grafico_linea_horas, param, function(x) {
-
-    //         const groupedData = x.reduce((acc, curr) => {
-    //             const date = new Date(curr.fecha_creado);
-    //             const hour = date.getHours();
-    //             const key = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()} ${hour}:00:00`;
-
-    //             if (!acc[key]) {
-    //                 acc[key] = [];
-    //             }
-
-    //             acc[key].push(curr);
-    //             return acc;
-    //         }, {});
-
-    //         // Preparar datos para el gráfico
-    //         const chartData = Object.keys(groupedData).map(key => {
-    //             return {
-    //                 date: new Date(key),
-    //                 value: groupedData[key].length
-    //             };
-    //         });
-
-
-    //         Grafico_linea_tiempo_horas(chartData)
-    //     })
-
-    // }
-
-    // function Grafico_linea_tiempo_horas(chartData) {
-
-    // }
-
-    // Cargar_reporte();
-
-
-    // //******************************** */
-    // // POR EDAD
-
-    // function Cargar_Por_Edad() {
-
-    //     AjaxSendReceiveData(url_cargar_grafico_por_edad, [], function(x) {
-
-    //         Cargar_Por_Edad_grafico(x)
-    //     })
-    // }
-
-    // function Cargar_Por_Edad_grafico(data) {
-
-    // }
-    // Cargar_Por_Edad()
-
-    // //******************************** */
-    // //* POR LOCALIDAD
-    // function Cargar_Por_Localidad() {
-
-    //     AjaxSendReceiveData(url_cargar_grafico_por_localidad, [], function(x) {
-    //         
-    //         Cargar_Por_Localidad_grafico(x)
-    //         // Cargar_Por_Edad_grafico(x)
-    //     })
-    // }
-
-    // function Cargar_Por_Localidad_grafico(data) {
-
-    // }
-    // Cargar_Por_Localidad()
-
-    // function AjaxSendReceiveData(url, data, callback) {
-    //     var xmlhttp = new XMLHttpRequest();
-    //     $.blockUI({
-    //         message: '<div class="d-flex justify-content-center align-items-center"><p class="mr-50 mb-0">Cargando ...</p> <div class="spinner-grow spinner-grow-sm text-white" role="status"></div> </div>',
-    //         css: {
-    //             backgroundColor: 'transparent',
-    //             color: '#fff',
-    //             border: '0'
-    //         },
-    //         overlayCSS: {
-    //             opacity: 0.5
-    //         }
-    //     });
-
-    //     xmlhttp.onreadystatechange = function() {
-    //         if (this.readyState == 4 && this.status == 200) {
-    //             var data = this.responseText;
-    //             data = JSON.parse(data);
-    //             callback(data);
-    //         }
-    //     }
-    //     xmlhttp.onload = () => {
-    //         $.unblockUI();
-    //         // 
-    //     };
-    //     xmlhttp.onerror = function() {
-    //         $.unblockUI();
-    //     };
-    //     data = JSON.stringify(data);
-    //     xmlhttp.open("POST", url, true);
-    //     xmlhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    //     xmlhttp.send(data);
-    // }
 </script>

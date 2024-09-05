@@ -137,6 +137,17 @@ $currentDateTime = date("Y-m-d");
                 </div>
             </div>
         </div>
+        <div class="col-sm-12 col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="p-1 text-center">Comercio</h2>
+                    <!-- <button class="btn btn-sm btn-success" id="BTN_LOC_DEMO">DEMOGRAFICO</button>
+                    <button class="btn btn-sm btn-info" id="BTN_LOC_SOLI">SOLIDARIO</button> -->
+                    <div style="height: 350px;" id="chartdiv_Cargar_Por_comercio"></div>
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>
 
