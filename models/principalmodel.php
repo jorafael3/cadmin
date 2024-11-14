@@ -8,6 +8,333 @@ class PrincipalModel extends Model
     }
 
 
+
+    function Cargar_Total_Completados($parametros)
+    {
+
+        try {
+
+            $FECHA_INI = $parametros["FECHA_INI"];
+            $FECHA_FIN = $parametros["FECHA_FIN"];
+
+            $items = [];
+            $query = $this->db->connect()->prepare("SELECT 
+                    COUNT(*) as TOTAL_COMPLETADOS
+                    from wsoqajmy_chatbot.tb_chatbot tc 
+                    ");
+            // $query->bindParam(":fechaini", $fecha_ini, PDO::PARAM_STR);
+            // $query->bindParam(":fechafin", $fecha_fin, PDO::PARAM_STR);
+
+            if ($query->execute()) {
+                $result = $query->fetchAll(PDO::FETCH_ASSOC);
+                $res = array(
+                    "success" => true,
+                    "data" => $result,
+                    "message" => "",
+                    "sql" => ""
+                );
+                echo json_encode($res);
+                exit();
+            } else {
+                $err = $query->errorInfo();
+                $res = array(
+                    "success" => false,
+                    "data" => [],
+                    "message" => $err,
+                    "sql" => ""
+                );
+                echo json_encode($res);
+                exit();
+            }
+        } catch (PDOException $e) {
+            $res = array(
+                "success" => false,
+                "data" => [],
+                "message" => $e,
+                "sql" => ""
+            );
+            echo json_encode($res);
+            exit();
+        }
+    }
+
+    function Cargar_Total_Errores($parametros)
+    {
+
+        try {
+
+            $FECHA_INI = $parametros["FECHA_INI"];
+            $FECHA_FIN = $parametros["FECHA_FIN"];
+
+            $items = [];
+            $query = $this->db->connect()->prepare("SELECT 
+                    COUNT(*) as TOTAL_ERRORES
+                    from wsoqajmy_chatbot.tb_chatbot tc 
+                    where campo_1 like '%Error%'
+                    ");
+            // $query->bindParam(":fechaini", $fecha_ini, PDO::PARAM_STR);
+            // $query->bindParam(":fechafin", $fecha_fin, PDO::PARAM_STR);
+
+            if ($query->execute()) {
+                $result = $query->fetchAll(PDO::FETCH_ASSOC);
+                $res = array(
+                    "success" => true,
+                    "data" => $result,
+                    "message" => "",
+                    "sql" => ""
+                );
+                echo json_encode($res);
+                exit();
+            } else {
+                $err = $query->errorInfo();
+                $res = array(
+                    "success" => false,
+                    "data" => [],
+                    "message" => $err,
+                    "sql" => ""
+                );
+                echo json_encode($res);
+                exit();
+            }
+        } catch (PDOException $e) {
+            $res = array(
+                "success" => false,
+                "data" => [],
+                "message" => $e,
+                "sql" => ""
+            );
+            echo json_encode($res);
+            exit();
+        }
+    }
+
+    function Cargar_Total_Aprobados($parametros)
+    {
+
+        try {
+
+            $FECHA_INI = $parametros["FECHA_INI"];
+            $FECHA_FIN = $parametros["FECHA_FIN"];
+
+            $items = [];
+            $query = $this->db->connect()->prepare("SELECT 
+                        COUNT(*) as TOTAL_APROBADOS
+                        from wsoqajmy_chatbot.tb_chatbot tc 
+                        where campo_1 = 'Cliente Si Califica'
+                    ");
+            // $query->bindParam(":fechaini", $fecha_ini, PDO::PARAM_STR);
+            // $query->bindParam(":fechafin", $fecha_fin, PDO::PARAM_STR);
+
+            if ($query->execute()) {
+                $result = $query->fetchAll(PDO::FETCH_ASSOC);
+                $res = array(
+                    "success" => true,
+                    "data" => $result,
+                    "message" => "",
+                    "sql" => ""
+                );
+                echo json_encode($res);
+                exit();
+            } else {
+                $err = $query->errorInfo();
+                $res = array(
+                    "success" => false,
+                    "data" => [],
+                    "message" => $err,
+                    "sql" => ""
+                );
+                echo json_encode($res);
+                exit();
+            }
+        } catch (PDOException $e) {
+            $res = array(
+                "success" => false,
+                "data" => [],
+                "message" => $e,
+                "sql" => ""
+            );
+            echo json_encode($res);
+            exit();
+        }
+    }
+
+    
+    function Cargar_Total_Rechazados($parametros)
+    {
+
+        try {
+
+            $FECHA_INI = $parametros["FECHA_INI"];
+            $FECHA_FIN = $parametros["FECHA_FIN"];
+
+            $items = [];
+            $query = $this->db->connect()->prepare("SELECT 
+                    COUNT(*) as TOTAL_RECHAZADOS
+                    from wsoqajmy_chatbot.tb_chatbot tc 
+                    where campo_1 like '%Solicitud Rechazada%'
+                    ");
+            // $query->bindParam(":fechaini", $fecha_ini, PDO::PARAM_STR);
+            // $query->bindParam(":fechafin", $fecha_fin, PDO::PARAM_STR);
+
+            if ($query->execute()) {
+                $result = $query->fetchAll(PDO::FETCH_ASSOC);
+                $res = array(
+                    "success" => true,
+                    "data" => $result,
+                    "message" => "",
+                    "sql" => ""
+                );
+                echo json_encode($res);
+                exit();
+            } else {
+                $err = $query->errorInfo();
+                $res = array(
+                    "success" => false,
+                    "data" => [],
+                    "message" => $err,
+                    "sql" => ""
+                );
+                echo json_encode($res);
+                exit();
+            }
+        } catch (PDOException $e) {
+            $res = array(
+                "success" => false,
+                "data" => [],
+                "message" => $e,
+                "sql" => ""
+            );
+            echo json_encode($res);
+            exit();
+        }
+    }
+
+    function Cargar_Monto_Aprobado($parametros)
+    {
+
+        try {
+
+            $FECHA_INI = $parametros["FECHA_INI"];
+            $FECHA_FIN = $parametros["FECHA_FIN"];
+
+            $items = [];
+            $query = $this->db->connect()->prepare("SELECT 
+                    SUM(campo_2) as MONTO_APROBADO
+                    from wsoqajmy_chatbot.tb_chatbot tc 
+                    where campo_1 = 'Cliente Si Califica'
+                    ");
+            // $query->bindParam(":fechaini", $fecha_ini, PDO::PARAM_STR);
+            // $query->bindParam(":fechafin", $fecha_fin, PDO::PARAM_STR);
+
+            if ($query->execute()) {
+                $result = $query->fetchAll(PDO::FETCH_ASSOC);
+                $res = array(
+                    "success" => true,
+                    "data" => $result,
+                    "message" => "",
+                    "sql" => ""
+                );
+                echo json_encode($res);
+                exit();
+            } else {
+                $err = $query->errorInfo();
+                $res = array(
+                    "success" => false,
+                    "data" => [],
+                    "message" => $err,
+                    "sql" => ""
+                );
+                echo json_encode($res);
+                exit();
+            }
+        } catch (PDOException $e) {
+            $res = array(
+                "success" => false,
+                "data" => [],
+                "message" => $e,
+                "sql" => ""
+            );
+            echo json_encode($res);
+            exit();
+        }
+    }
+
+    function Estado_de_credito($parametros)
+    {
+
+        try {
+
+            $FECHA_INI = $parametros["FECHA_INI"];
+            $FECHA_FIN = $parametros["FECHA_FIN"];
+
+            $items = [];
+            $query = $this->db->connect()->prepare("SELECT 
+                    'Aprobados' as estado,
+                    COUNT(*) as total
+                    from wsoqajmy_chatbot.tb_chatbot tc 
+                    where campo_1 = 'Cliente Si Califica'
+                    UNION ALL
+                    select 
+                    'Rechazados' as estado,
+                    COUNT(*) as total
+                    from wsoqajmy_chatbot.tb_chatbot tc 
+                    where campo_1 like '%Solicitud Rechazada%'
+                    ");
+            // $query->bindParam(":fechaini", $fecha_ini, PDO::PARAM_STR);
+            // $query->bindParam(":fechafin", $fecha_fin, PDO::PARAM_STR);
+
+            if ($query->execute()) {
+                $result = $query->fetchAll(PDO::FETCH_ASSOC);
+                $res = array(
+                    "success" => true,
+                    "data" => $result,
+                    "message" => "",
+                    "sql" => ""
+                );
+                echo json_encode($res);
+                exit();
+            } else {
+                $err = $query->errorInfo();
+                $res = array(
+                    "success" => false,
+                    "data" => [],
+                    "message" => $err,
+                    "sql" => ""
+                );
+                echo json_encode($res);
+                exit();
+            }
+        } catch (PDOException $e) {
+            $res = array(
+                "success" => false,
+                "data" => [],
+                "message" => $e,
+                "sql" => ""
+            );
+            echo json_encode($res);
+            exit();
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     function Cargar_Cantidad_Total($parametros)
     {
         $fecha_ini = $parametros["fecha_ini"];

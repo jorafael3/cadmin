@@ -1,7 +1,5 @@
 <?php
 
-
-
 require 'views/header.php';
 require 'funciones/toplocalesjs.php';
 

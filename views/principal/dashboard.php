@@ -42,25 +42,39 @@ $currentDateTime = date("Y-m-d");
         opacity: 0.5;
         background: #ddd;
     }
+
+    .card {
+        margin: 0;
+        /* Elimina cualquier margen externo */
+        padding: 0;
+        /* Opcional: ajusta el padding si es necesario */
+    }
+
+    .col-12,
+    .col-sm-6,
+    .col-md-3 {
+        margin: 1;
+        padding: 1;
+    }
 </style>
 
 
 
-<div class="col-12 p-1">
+<div class="col-12">
     <div class="row">
 
         <div class="col-12">
             <div class="card shadow p-2">
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-sm-6 col-md-4">
+                        <div class="col-sm-6 col-md-3">
                             <input id="fecha_ini" type="date" class="form-control" value="<?php echo $current ?>">
                         </div>
-                        <div class="col-sm-6 col-md-4">
+                        <div class="col-sm-6 col-md-3">
                             <input id="fecha_fin" type="date" class="form-control" value="<?php echo $currentDateTime ?>">
                         </div>
                         <div class="col-sm-6 col-md-3">
-                            <button onclick="Cargar_Cantidad_Total()" class="btn btn-primary">Cargar</button>
+                            <button onclick="Cargar()" class="btn btn-primary">Cargar</button>
                         </div>
                     </div>
                 </div>
@@ -70,28 +84,182 @@ $currentDateTime = date("Y-m-d");
     </div>
 </div>
 
-<div class="col-12 p-1">
+<div class="col-12 mt-3 mb-1">
+    <div class="row">
+        <div class="col-12 col-sm-6 col-md-3">
+            <div class="card text-center">
+                <div class="card-body" style="height: 150px;">
+                    <h5 class="card-title fw-bold">Total Completados</h5>
+                    <h6 class="card-subtitle mb-2 text-muted fs-7">Usuarios que terminaron todo el flujo</h6>
+                    <h1 class="fw-bold" id="TOTAL_COMPLETADOS">...</h1>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-md-3">
+            <div class="card text-center">
+                <div class="card-body" style="height: 150px;">
+                    <h5 class="card-title fw-bold">Total Errores</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">usuarios que terminaron el flujo pero dio error</h6>
+                    <h1 class="fw-bold" id="TOTAL_ERRORES">...</h1>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-md-3">
+            <div class="card text-center">
+                <div class="card-body" style="height: 150px;">
+                    <h5 class="card-title fw-bold">Total Usuarios Aprobado</h5><br>
+                    <h1 class="fw-bold" id="TOTAL_APROBADOS">...</h1>
+
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-md-3">
+            <div class="card text-center">
+                <div class="card-body" style="height: 150px;">
+                    <h5 class="card-title fw-bold">Total Usuarios Rechazados</h5><br>
+                    <h1 class="fw-bold" id="TOTAL_RECHAZADOS">...</h1>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="col-12 mt-3 mb-1">
+    <div class="row ">
+        <div class="col-6 col-sm-6">
+            <div class="card text-center">
+                <div class="card-body" style="height: 150px;">
+                    <h5 class="card-title fw-bold"># Conversaciones</h5><br>
+                    <h1 class="fw-bold display-1">68</h1>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-sm-6">
+            <div class="card text-center">
+                <div class="card-body" style="height: 150px;">
+                    <h5 class="card-title fw-bold">Monto Aprobado</h5>
+                    <h6 class="card-subtitle mb-2 text-muted fs-7">Monto total aprobado</h6>
+                    <h1 class="fw-bold display-1" id="MONTO_APROBADO">...</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="col-12 mt-3 mb-1">
+    <div class="row">
+        <div class="col-12 col-md-6">
+            <div class="card text-center">
+                <div class="card-body" style="height: 400px;">
+                    <h5 class="card-title fw-bold">Estados del formulario</h5>
+                    <div id="estadoFormularioChart" style="width: 100%; height: 300px;"></div>
+
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-6">
+            <div class="card text-center">
+                <div class="card-body" style="height: 400px;">
+                    <h5 class="card-title fw-bold">Estado de creditos</h5>
+                    <div id="estadoCreditoChart" style="width: 100%; height: 300px;"></div>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="col-12 mt-3 mb-1">
+    <div class="row">
+        <div class="col-12 col-md-6">
+            <div class="card text-center">
+                <div class="card-body" style="height: 400px;">
+                    <h5 class="card-title fw-bold">Top 5 ciudades de los clientes</h5>
+                    <h6 class="card-subtitle mb-2 text-muted fs-7">ciudades de las personas que consultaron su credito</h6>
+                    <div id="topCiudadesChart" style="width: 100%; height: 300px;"></div>
+
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-6">
+            <div class="card text-center">
+                <div class="card-body" style="height: 400px;">
+                    <h5 class="card-title fw-bold">Estado civil de los clientes</h5>
+                    <h6 class="card-subtitle mb-2 text-muted fs-7">Estado civil de las personas que consultaron su credito</h6>
+                    <div id="estadoCivilChart" style="width: 100%; height: 300px;"></div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="col-12 mt-3 mb-1">
+    <div class="row">
+        <div class="col-12 col-md-6">
+            <div class="card text-center">
+                <div class="card-body" style="height: 400px;">
+                    <h5 class="card-title fw-bold">rango de edades</h5>
+                    <h6 class="card-subtitle mb-2 text-muted fs-7">Edades de usuarios</h6>
+                    <div id="rangoEdadesChart" style="width: 100%; height: 300px;"></div>
+
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-6">
+            <div class="card text-center">
+                <div class="card-body" style="height: 400px;">
+                    <h5 class="card-title fw-bold">Top 5 de salario</h5>
+                    <h6 class="card-subtitle mb-2 text-muted fs-7">Salario de creditos aprobados</h6>
+                    <div id="salarioTop5Chart" style="width: 100%; height: 300px;"></div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="col-12 mt-3 mb-1">
+    <div class="row">
+        <div class="col-12">
+            <div class="card text-center">
+                <div class="card-body" style="height: 400px;">
+                    <h5 class="card-title fw-bold">Trafico de conversaciones</h5>
+                    <div id="traficoConversacionesChart" style="width: 100%; height: 300px;"></div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="col-12 d-none">
     <div class="row">
         <div class="col-sm-6 col-md-3">
-            <div class="card p-2">
-                <div class="card-body">
-                    <h4 class="text-start fw-bold">Consultas realizadas</h4>
-                    <h6 class="text-muted">Total de consultas</h6>
-                    <h1 class="fw-bold m-4" style="font-size: 40px;" id="CANTIDAD_CONSULTAS"></h1>
+            <div class="card text-center">
+                <div class="card-body ">
+                    <h6 class="fw-bold">Total Completados</h4>
+                        <h6 class="text-muted">Total de consultas</h6>
+                        <h1 class="fw-bold m-4" style="font-size: 40px;" id="CANTIDAD_CONSULTAS"></h1>
                 </div>
             </div>
         </div>
         <div class="col-sm-6 col-md-3">
-            <div class="card p-2">
+            <div class="card text-center">
                 <div class="card-body">
-                    <h4 class="text-start fw-bold text-danger">Consultas con errores</h4>
-                    <h6 class="text-muted">Cedula no valida...</h6>
-                    <h1 class="fw-bold m-4" style="font-size: 40px;" id="CANTIDAD_CONSULTAS_ERRORES"></h1>
+                    <h6 class=" fw-bold text-danger">Total Errores</h4>
+                        <h6 class="text-muted">usuarios que terminaron el flujo pero dio error</h6>
+                        <h1 class="fw-bold m-4" style="font-size: 40px;" id="CANTIDAD_CONSULTAS_ERRORES"></h1>
                 </div>
             </div>
         </div>
         <div class="col-sm-6 col-md-3">
-            <div class="card p-2">
+            <div class="card">
                 <div class="card-body">
                     <h4 class="text-start fw-bold">Consultas Demografica</h4>
                     <h6 class="text-muted">Solo demografico</h6>
@@ -100,7 +268,7 @@ $currentDateTime = date("Y-m-d");
             </div>
         </div>
         <div class="col-sm-6 col-md-3">
-            <div class="card p-2">
+            <div class="card">
                 <div class="card-body">
                     <h4 class="text-start fw-bold">Consultas solidario</h4>
                     <h6 class="text-muted">demografico + solidario</h6>
@@ -111,7 +279,7 @@ $currentDateTime = date("Y-m-d");
     </div>
 </div>
 
-<div class="col-12 p-1">
+<div class="col-12 p-1 d-none">
     <div class="row">
         <div class="col-sm-12 col-md-6">
             <div class="card">
@@ -152,7 +320,7 @@ $currentDateTime = date("Y-m-d");
 </div>
 
 
-<div class="col-12 p-1">
+<div class="col-12 p-1 d-none">
     <div class="row">
         <div class="col-12">
             <div class="card">
@@ -191,7 +359,7 @@ $currentDateTime = date("Y-m-d");
 
 <script src='funciones/functions.js'></script>
 <?php require 'views/footer.php'; ?>
-<?php require 'funciones/dasboard_js.php'; ?>
+<?php require 'funciones/ganga_js.php'; ?>
 
 <script>
 
