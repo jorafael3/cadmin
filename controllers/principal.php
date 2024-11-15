@@ -56,6 +56,19 @@ class Principal extends Controller
         $function = $this->model->Estado_de_credito($array);
     }
 
+    
+    function Estado_formulario()
+    {
+        $array = json_decode(file_get_contents("php://input"), true);
+        $function = $this->model->Estado_formulario($array);
+    }
+
+    function Datos_General()
+    {
+        $array = json_decode(file_get_contents("php://input"), true);
+        $function = $this->model->Datos_General($array);
+    }
+
 
 
 

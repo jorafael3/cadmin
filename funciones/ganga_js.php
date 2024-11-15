@@ -6,6 +6,10 @@ $url_Cargar_Total_Aprobados = constant('URL') . 'principal/Cargar_Total_Aprobado
 $url_Cargar_Total_Rechazados = constant('URL') . 'principal/Cargar_Total_Rechazados/';
 $url_Cargar_Monto_Aprobado = constant('URL') . 'principal/Cargar_Monto_Aprobado/';
 $url_Estado_de_credito = constant('URL') . 'principal/Estado_de_credito/';
+$url_Estado_formulario = constant('URL') . 'principal/Estado_formulario/';
+
+$url_Datos_General = constant('URL') . 'principal/Datos_General/';
+
 
 ?>
 <script>
@@ -14,8 +18,10 @@ $url_Estado_de_credito = constant('URL') . 'principal/Estado_de_credito/';
     var url_Cargar_Total_Aprobados = '<?php echo $url_Cargar_Total_Aprobados ?>';
     var url_Cargar_Total_Rechazados = '<?php echo $url_Cargar_Total_Rechazados ?>';
     var url_Cargar_Monto_Aprobado = '<?php echo $url_Cargar_Monto_Aprobado ?>';
+    var url_Estado_formulario = '<?php echo $url_Estado_formulario ?>';
 
     var url_Estado_de_credito = '<?php echo $url_Estado_de_credito ?>';
+    var url_Datos_General = '<?php echo $url_Datos_General ?>';
 
 
     var FECHA_INI = "";
@@ -37,16 +43,35 @@ $url_Estado_de_credito = constant('URL') . 'principal/Estado_de_credito/';
 
             Estado_formulario()
             Estado_de_credito()
-            Top5_ciudades()
-            Estado_civil()
-            Rango_edades()
-            Top_salario()
-            Trafico()
+
+            Datos_general();
+
         }, 100);
 
 
     }
     Cargar()
+
+    function Datos_general() {
+
+        let param = {
+            FECHA_INI: FECHA_INI,
+            FECHA_FIN: FECHA_FIN
+        }
+        AjaxSendReceiveData(url_Datos_General, param, function(x) {
+
+
+            let data = x.data;
+
+
+
+            Top5_ciudades(data)
+            Estado_civil(data)
+            Rango_edades(data)
+            Top_salario(data)
+            Trafico(data)
+        });
+    }
 
 
     function Cargar_Total_Completados() {
@@ -55,6 +80,7 @@ $url_Estado_de_credito = constant('URL') . 'principal/Estado_de_credito/';
             FECHA_FIN: FECHA_FIN
         }
         AjaxSendReceiveData(url_Cargar_Total_Completados, param, function(x) {
+            
 
             if (x.success) {
                 let datos = x.data;
@@ -158,56 +184,53 @@ $url_Estado_de_credito = constant('URL') . 'principal/Estado_de_credito/';
 
 
     function Estado_formulario() {
-        am4core.useTheme(am4themes_animated);
+        let param = {
+            FECHA_INI: FECHA_INI,
+            FECHA_FIN: FECHA_FIN
+        }
+        AjaxSendReceiveData(url_Estado_formulario, param, function(x) {
+            console.log("🚀 ~ AjaxSendReceiveData ~ x:", x)
+            am4core.useTheme(am4themes_animated);
+            
+            let data = x.data
+            let estadoFormularioChart = am4core.create("estadoFormularioChart", am4charts.XYChart);
 
-        let estadoFormularioChart = am4core.create("estadoFormularioChart", am4charts.XYChart);
+            estadoFormularioChart.data = data
 
-        estadoFormularioChart.data = [{
-                "estado": "Completadas",
-                "total": 207
-            },
-            {
-                "estado": "Iniciadas",
-                "total": 155
-            },
-            {
-                "estado": "Incompletas",
-                "total": 26
-            }
-        ];
+            let categoryAxisFormulario = estadoFormularioChart.xAxes.push(new am4charts.CategoryAxis());
+            categoryAxisFormulario.dataFields.category = "estado";
+            categoryAxisFormulario.renderer.grid.template.location = 0;
+            categoryAxisFormulario.renderer.minGridDistance = 30;
 
-        let categoryAxisFormulario = estadoFormularioChart.xAxes.push(new am4charts.CategoryAxis());
-        categoryAxisFormulario.dataFields.category = "estado";
-        categoryAxisFormulario.renderer.grid.template.location = 0;
-        categoryAxisFormulario.renderer.minGridDistance = 30;
+            let valueAxisFormulario = estadoFormularioChart.yAxes.push(new am4charts.ValueAxis());
 
-        let valueAxisFormulario = estadoFormularioChart.yAxes.push(new am4charts.ValueAxis());
+            let seriesFormulario = estadoFormularioChart.series.push(new am4charts.ColumnSeries());
+            seriesFormulario.dataFields.valueY = "total";
+            seriesFormulario.dataFields.categoryX = "estado";
+            seriesFormulario.name = "Total";
+            seriesFormulario.columns.template.tooltipText = "{categoryX}: [bold]{valueY}[/]";
+            seriesFormulario.columns.template.fillOpacity = 0.8;
 
-        let seriesFormulario = estadoFormularioChart.series.push(new am4charts.ColumnSeries());
-        seriesFormulario.dataFields.valueY = "total";
-        seriesFormulario.dataFields.categoryX = "estado";
-        seriesFormulario.name = "Total";
-        seriesFormulario.columns.template.tooltipText = "{categoryX}: [bold]{valueY}[/]";
-        seriesFormulario.columns.template.fillOpacity = 0.8;
+            // Colores personalizados para cada columna
+            seriesFormulario.columns.template.adapter.add("fill", function(fill, target) {
+                if (target.dataItem && target.dataItem.categoryX === "Completadas") {
+                    return am4core.color("#28a745"); // Verde para Completadas
+                } else if (target.dataItem && target.dataItem.categoryX === "Iniciadas") {
+                    return am4core.color("#ffc107"); // Naranja para Incompletas
+                } else if (target.dataItem && target.dataItem.categoryX === "Incompletas") {
+                    return am4core.color("#007bff"); // Azul para Erroneas
+                }
+                return fill;
+            });
 
-        // Colores personalizados para cada columna
-        seriesFormulario.columns.template.adapter.add("fill", function(fill, target) {
-            if (target.dataItem && target.dataItem.categoryX === "Completadas") {
-                return am4core.color("#28a745"); // Verde para Completadas
-            } else if (target.dataItem && target.dataItem.categoryX === "Iniciadas") {
-                return am4core.color("#ffc107"); // Naranja para Incompletas
-            } else if (target.dataItem && target.dataItem.categoryX === "Incompletas") {
-                return am4core.color("#007bff"); // Azul para Erroneas
-            }
-            return fill;
-        });
+            // Agregar etiquetas de datos encima de cada columna
+            let labelBullet = seriesFormulario.bullets.push(new am4charts.LabelBullet());
+            labelBullet.label.text = "{valueY}";
+            labelBullet.label.dy = -10; // Posiciona la etiqueta encima de la columna
+            labelBullet.label.fill = am4core.color("#000"); // Color de texto para la etiqueta
+            labelBullet.label.fontSize = 14;
+        })
 
-        // Agregar etiquetas de datos encima de cada columna
-        let labelBullet = seriesFormulario.bullets.push(new am4charts.LabelBullet());
-        labelBullet.label.text = "{valueY}";
-        labelBullet.label.dy = -10; // Posiciona la etiqueta encima de la columna
-        labelBullet.label.fill = am4core.color("#000"); // Color de texto para la etiqueta
-        labelBullet.label.fontSize = 14;
 
     }
 
@@ -218,8 +241,8 @@ $url_Estado_de_credito = constant('URL') . 'principal/Estado_de_credito/';
         }
 
         AjaxSendReceiveData(url_Estado_de_credito, param, function(x) {
-            console.log("🚀 ~ AjaxSendReceiveData ~ x:", x);
-            
+
+
             if (x.success) {
                 am4core.useTheme(am4themes_animated);
 
@@ -263,32 +286,39 @@ $url_Estado_de_credito = constant('URL') . 'principal/Estado_de_credito/';
 
     }
 
-    function Top5_ciudades() {
+
+
+    function Top5_ciudades(data) {
+
+        let ARRAY = []
+        let s = data[0]["data_demo"]
+        data.map(function(x) {
+            let d = JSON.parse(x.data_demo);
+            ARRAY.push(d[0]["SOCIODEMOGRAFICO"][0])
+        })
+
+        let unique = [...new Set(ARRAY.map(item => item.LUGAR_DOM_CIUDAD))]
+
+        let ARRAY_CIUDADES = [];
+        unique.map(function(y) {
+            let f = ARRAY.filter(i => i.LUGAR_DOM_CIUDAD == y)
+
+            let b = {
+                ciudad: y,
+                usuarios: f.length
+            }
+            ARRAY_CIUDADES.push(b)
+        })
+
+        ARRAY_CIUDADES.sort((a, b) => b.usuarios - a.usuarios);
+        ARRAY_CIUDADES = ARRAY_CIUDADES.slice(0, 5);
+
+
         // Crear gráfico de donut para "Top 5 Ciudades"
         let topCiudadesChart = am4core.create("topCiudadesChart", am4charts.PieChart);
         topCiudadesChart.innerRadius = am4core.percent(40); // Hacerlo un gráfico de donut
 
-        topCiudadesChart.data = [{
-                "ciudad": "Guayaquil",
-                "usuarios": 120
-            },
-            {
-                "ciudad": "Quito",
-                "usuarios": 90
-            },
-            {
-                "ciudad": "Cuenca",
-                "usuarios": 45
-            },
-            {
-                "ciudad": "Ambato",
-                "usuarios": 25
-            },
-            {
-                "ciudad": "Loja",
-                "usuarios": 15
-            }
-        ];
+        topCiudadesChart.data = ARRAY_CIUDADES;
 
         // Lista de colores personalizados
         let customColors = ["#4CAF50", "#FF5722", "#03A9F4", "#FFC107", "#9C27B0"];
@@ -325,28 +355,35 @@ $url_Estado_de_credito = constant('URL') . 'principal/Estado_de_credito/';
 
     }
 
-    function Estado_civil() {
-        // Crear gráfico de donut para "Estado Civil"
+
+    function Estado_civil(data) {
+        let ARRAY = []
+        let s = data[0]["data_demo"]
+        data.map(function(x) {
+            let d = JSON.parse(x.data_demo);
+            ARRAY.push(d[0]["SOCIODEMOGRAFICO"][0])
+        })
+
+        let unique = [...new Set(ARRAY.map(item => item.DES_ESTADO_CIVIL))]
+
+        let ARRAY_CIUDADES = [];
+        unique.map(function(y) {
+            let f = ARRAY.filter(i => i.DES_ESTADO_CIVIL == y)
+
+            let b = {
+                estadoCivil: y,
+                usuarios: f.length
+            }
+            ARRAY_CIUDADES.push(b)
+        })
+
+        ARRAY_CIUDADES.sort((a, b) => b.usuarios - a.usuarios);
+        ARRAY_CIUDADES = ARRAY_CIUDADES.slice(0, 5);
+
         let estadoCivilChart = am4core.create("estadoCivilChart", am4charts.PieChart);
         estadoCivilChart.innerRadius = am4core.percent(40); // Hacerlo un gráfico de donut
 
-        estadoCivilChart.data = [{
-                "estadoCivil": "Soltero",
-                "usuarios": 100
-            },
-            {
-                "estadoCivil": "Casado",
-                "usuarios": 80
-            },
-            {
-                "estadoCivil": "Divorciado",
-                "usuarios": 30
-            },
-            {
-                "estadoCivil": "Viudo",
-                "usuarios": 15
-            }
-        ];
+        estadoCivilChart.data = ARRAY_CIUDADES
 
         // Lista de colores personalizados para cada estado civil
         let estadoCivilColors = ["#4CAF50", "#FF5722", "#03A9F4", "#FFC107"];
@@ -386,9 +423,35 @@ $url_Estado_de_credito = constant('URL') . 'principal/Estado_de_credito/';
 
     }
 
-    function Rango_edades() {
-        // Crear gráfico de columnas para "Rango de Edades" con todas las edades individuales
+    function Rango_edades(data) {
+
+        let ARRAY = []
+        let s = data[0]["data_demo"]
+        data.map(function(x) {
+            let d = JSON.parse(x.data_demo);
+
+
+            ARRAY.push(d[0]["SOCIODEMOGRAFICO"][0])
+        })
+
+        let unique = [...new Set(ARRAY.map(item => item.Edad))]
+
+        let ARRAY_CIUDADES = [];
+        unique.map(function(y) {
+            let f = ARRAY.filter(i => i.Edad == y)
+
+            let b = {
+                edad: y,
+                usuarios: f.length
+            }
+            ARRAY_CIUDADES.push(b)
+        })
+
+        ARRAY_CIUDADES.sort((a, b) => a.edad - b.edad);
+
+
         let rangoEdadesChart = am4core.create("rangoEdadesChart", am4charts.XYChart);
+
 
         // Habilitar el zoom
         rangoEdadesChart.scrollbarX = new am4core.Scrollbar();
@@ -398,183 +461,7 @@ $url_Estado_de_credito = constant('URL') . 'principal/Estado_de_credito/';
 
         // Datos de ejemplo
 
-        rangoEdadesChart.data = [{
-                "edad": "17",
-                "usuarios": 15
-            },
-            {
-                "edad": "18",
-                "usuarios": 15
-            },
-            {
-                "edad": "19",
-                "usuarios": 20
-            },
-            {
-                "edad": "20",
-                "usuarios": 30
-            },
-            {
-                "edad": "21",
-                "usuarios": 25
-            },
-            {
-                "edad": "22",
-                "usuarios": 18
-            },
-            {
-                "edad": "23",
-                "usuarios": 22
-            },
-            {
-                "edad": "24",
-                "usuarios": 20
-            },
-            {
-                "edad": "25",
-                "usuarios": 25
-            },
-            {
-                "edad": "26",
-                "usuarios": 30
-            },
-            {
-                "edad": "27",
-                "usuarios": 28
-            },
-            {
-                "edad": "28",
-                "usuarios": 32
-            },
-            {
-                "edad": "29",
-                "usuarios": 27
-            },
-            {
-                "edad": "30",
-                "usuarios": 35
-            },
-            {
-                "edad": "31",
-                "usuarios": 30
-            },
-            {
-                "edad": "32",
-                "usuarios": 31
-            },
-            {
-                "edad": "33",
-                "usuarios": 26
-            },
-            {
-                "edad": "34",
-                "usuarios": 22
-            },
-            {
-                "edad": "35",
-                "usuarios": 19
-            },
-            {
-                "edad": "36",
-                "usuarios": 21
-            },
-            {
-                "edad": "37",
-                "usuarios": 25
-            },
-            {
-                "edad": "38",
-                "usuarios": 20
-            },
-            {
-                "edad": "39",
-                "usuarios": 22
-            },
-            {
-                "edad": "40",
-                "usuarios": 18
-            },
-            {
-                "edad": "41",
-                "usuarios": 17
-            },
-            {
-                "edad": "42",
-                "usuarios": 19
-            },
-            {
-                "edad": "43",
-                "usuarios": 22
-            },
-            {
-                "edad": "44",
-                "usuarios": 16
-            },
-            {
-                "edad": "45",
-                "usuarios": 15
-            },
-            {
-                "edad": "46",
-                "usuarios": 10
-            },
-            {
-                "edad": "47",
-                "usuarios": 12
-            },
-            {
-                "edad": "48",
-                "usuarios": 13
-            },
-            {
-                "edad": "49",
-                "usuarios": 14
-            },
-            {
-                "edad": "50",
-                "usuarios": 12
-            },
-            {
-                "edad": "51",
-                "usuarios": 11
-            },
-            {
-                "edad": "52",
-                "usuarios": 9
-            },
-            {
-                "edad": "53",
-                "usuarios": 8
-            },
-            {
-                "edad": "54",
-                "usuarios": 7
-            },
-            {
-                "edad": "55",
-                "usuarios": 6
-            },
-            {
-                "edad": "56",
-                "usuarios": 5
-            },
-            {
-                "edad": "57",
-                "usuarios": 4
-            },
-            {
-                "edad": "58",
-                "usuarios": 3
-            },
-            {
-                "edad": "59",
-                "usuarios": 2
-            },
-            {
-                "edad": "60",
-                "usuarios": 1
-            }
-        ];
+        rangoEdadesChart.data = ARRAY_CIUDADES
 
         // Configuración de los ejes
         let categoryAxis = rangoEdadesChart.xAxes.push(new am4charts.CategoryAxis());
@@ -681,32 +568,42 @@ $url_Estado_de_credito = constant('URL') . 'principal/Estado_de_credito/';
 
     }
 
-    function Top_salario() {
-        // Crear gráfico de columnas para "Salario Top 5"
+    function Top_salario(data) {
+
+        let ARRAY = []
+        let s = data[0]["data_demo"]
+        data.map(function(x) {
+            let d = JSON.parse(x.data_demo);
+
+
+            if (d[0]["DEPENDIENTES"].length > 0) {
+                ARRAY.push(d[0]["DEPENDIENTES"][0])
+            }
+
+        })
+
+        let unique = [...new Set(ARRAY.map(item => item.Sueldo))]
+
+        let ARRAY_CIUDADES = [];
+        unique.map(function(y) {
+            let f = ARRAY.filter(i => i.Sueldo == y)
+
+            let b = {
+                salario: y,
+                cantidad: f.length
+            }
+            ARRAY_CIUDADES.push(b)
+        })
+
+        ARRAY_CIUDADES.sort((a, b) => b.cantidad - a.cantidad);
+
+        ARRAY_CIUDADES = ARRAY_CIUDADES.slice(0, 5);
+
+
         let salarioTop5Chart = am4core.create("salarioTop5Chart", am4charts.XYChart);
 
         // Datos de ejemplo para los 5 salarios más altos por cantidad de personas
-        salarioTop5Chart.data = [{
-                "salario": "$500",
-                "cantidad": 10
-            },
-            {
-                "salario": "$600",
-                "cantidad": 20
-            },
-            {
-                "salario": "$700",
-                "cantidad": 15
-            },
-            {
-                "salario": "$800",
-                "cantidad": 12
-            },
-            {
-                "salario": "$900",
-                "cantidad": 8
-            }
-        ];
+        salarioTop5Chart.data = ARRAY_CIUDADES
 
         // Configuración de los ejes
         let categoryAxis = salarioTop5Chart.xAxes.push(new am4charts.CategoryAxis());
@@ -766,108 +663,32 @@ $url_Estado_de_credito = constant('URL') . 'principal/Estado_de_credito/';
 
     }
 
-    function Trafico() {
-        // Crear gráfico de líneas para "Tráfico de Conversaciones"
+    function Trafico(data) {
+
+
+        data.map(function(x) {
+            x.HORA = moment(x.fecha).format("HH:00");
+        })
+
+        let unique = [...new Set(data.map(item => item.HORA))]
+
+        let ARRAY_CIUDADES = [];
+        unique.map(function(y) {
+            let f = data.filter(i => i.HORA == y)
+
+            let b = {
+                hora: y,
+                conversaciones: f.length
+            }
+            ARRAY_CIUDADES.push(b)
+        })
+
+
+
         let traficoConversacionesChart = am4core.create("traficoConversacionesChart", am4charts.XYChart);
 
         // Datos de ejemplo para el tráfico de conversaciones a lo largo de un día, desde las 00:00 hasta las 23:00
-        traficoConversacionesChart.data = [{
-                "hora": "00:00",
-                "conversaciones": 3
-            },
-            {
-                "hora": "01:00",
-                "conversaciones": 2
-            },
-            {
-                "hora": "02:00",
-                "conversaciones": 1
-            },
-            {
-                "hora": "03:00",
-                "conversaciones": 0
-            },
-            {
-                "hora": "04:00",
-                "conversaciones": 1
-            },
-            {
-                "hora": "05:00",
-                "conversaciones": 2
-            },
-            {
-                "hora": "06:00",
-                "conversaciones": 3
-            },
-            {
-                "hora": "07:00",
-                "conversaciones": 5
-            },
-            {
-                "hora": "08:00",
-                "conversaciones": 8
-            },
-            {
-                "hora": "09:00",
-                "conversaciones": 12
-            },
-            {
-                "hora": "10:00",
-                "conversaciones": 15
-            },
-            {
-                "hora": "11:00",
-                "conversaciones": 20
-            },
-            {
-                "hora": "12:00",
-                "conversaciones": 18
-            },
-            {
-                "hora": "13:00",
-                "conversaciones": 16
-            },
-            {
-                "hora": "14:00",
-                "conversaciones": 14
-            },
-            {
-                "hora": "15:00",
-                "conversaciones": 22
-            },
-            {
-                "hora": "16:00",
-                "conversaciones": 25
-            },
-            {
-                "hora": "17:00",
-                "conversaciones": 20
-            },
-            {
-                "hora": "18:00",
-                "conversaciones": 18
-            },
-            {
-                "hora": "19:00",
-                "conversaciones": 15
-            },
-            {
-                "hora": "20:00",
-                "conversaciones": 12
-            },
-            {
-                "hora": "21:00",
-                "conversaciones": 10
-            },
-            {
-                "hora": "22:00",
-                "conversaciones": 7
-            },
-            {
-                "hora": "23:00",
-                "conversaciones": 5
-            }
-        ];
+        traficoConversacionesChart.data = ARRAY_CIUDADES
 
         // Configuración de los ejes
         let categoryAxis = traficoConversacionesChart.xAxes.push(new am4charts.CategoryAxis());

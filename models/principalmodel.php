@@ -21,9 +21,11 @@ class PrincipalModel extends Model
             $query = $this->db->connect()->prepare("SELECT 
                     COUNT(*) as TOTAL_COMPLETADOS
                     from wsoqajmy_chatbot.tb_chatbot tc 
+                    where DATE(tc.Fecha_de_Consulta) BETWEEN :INICIO AND :FIN
+
                     ");
-            // $query->bindParam(":fechaini", $fecha_ini, PDO::PARAM_STR);
-            // $query->bindParam(":fechafin", $fecha_fin, PDO::PARAM_STR);
+            $query->bindParam(":INICIO", $FECHA_INI, PDO::PARAM_STR);
+            $query->bindParam(":FIN", $FECHA_FIN, PDO::PARAM_STR);
 
             if ($query->execute()) {
                 $result = $query->fetchAll(PDO::FETCH_ASSOC);
@@ -71,9 +73,11 @@ class PrincipalModel extends Model
                     COUNT(*) as TOTAL_ERRORES
                     from wsoqajmy_chatbot.tb_chatbot tc 
                     where campo_1 like '%Error%'
+                    and DATE(tc.Fecha_de_Consulta) BETWEEN :INICIO AND :FIN
+
                     ");
-            // $query->bindParam(":fechaini", $fecha_ini, PDO::PARAM_STR);
-            // $query->bindParam(":fechafin", $fecha_fin, PDO::PARAM_STR);
+            $query->bindParam(":INICIO", $FECHA_INI, PDO::PARAM_STR);
+            $query->bindParam(":FIN", $FECHA_FIN, PDO::PARAM_STR);
 
             if ($query->execute()) {
                 $result = $query->fetchAll(PDO::FETCH_ASSOC);
@@ -121,9 +125,11 @@ class PrincipalModel extends Model
                         COUNT(*) as TOTAL_APROBADOS
                         from wsoqajmy_chatbot.tb_chatbot tc 
                         where campo_1 = 'Cliente Si Califica'
+                    and DATE(tc.Fecha_de_Consulta) BETWEEN :INICIO AND :FIN
+
                     ");
-            // $query->bindParam(":fechaini", $fecha_ini, PDO::PARAM_STR);
-            // $query->bindParam(":fechafin", $fecha_fin, PDO::PARAM_STR);
+            $query->bindParam(":INICIO", $FECHA_INI, PDO::PARAM_STR);
+            $query->bindParam(":FIN", $FECHA_FIN, PDO::PARAM_STR);
 
             if ($query->execute()) {
                 $result = $query->fetchAll(PDO::FETCH_ASSOC);
@@ -158,7 +164,6 @@ class PrincipalModel extends Model
         }
     }
 
-    
     function Cargar_Total_Rechazados($parametros)
     {
 
@@ -172,9 +177,12 @@ class PrincipalModel extends Model
                     COUNT(*) as TOTAL_RECHAZADOS
                     from wsoqajmy_chatbot.tb_chatbot tc 
                     where campo_1 like '%Solicitud Rechazada%'
+                    and DATE(tc.Fecha_de_Consulta) BETWEEN :INICIO AND :FIN
+
                     ");
-            // $query->bindParam(":fechaini", $fecha_ini, PDO::PARAM_STR);
-            // $query->bindParam(":fechafin", $fecha_fin, PDO::PARAM_STR);
+            $query->bindParam(":INICIO", $FECHA_INI, PDO::PARAM_STR);
+            $query->bindParam(":FIN", $FECHA_FIN, PDO::PARAM_STR);
+
 
             if ($query->execute()) {
                 $result = $query->fetchAll(PDO::FETCH_ASSOC);
@@ -222,9 +230,76 @@ class PrincipalModel extends Model
                     SUM(campo_2) as MONTO_APROBADO
                     from wsoqajmy_chatbot.tb_chatbot tc 
                     where campo_1 = 'Cliente Si Califica'
+                    and DATE(tc.Fecha_de_Consulta) BETWEEN :INICIO AND :FIN
+
                     ");
-            // $query->bindParam(":fechaini", $fecha_ini, PDO::PARAM_STR);
-            // $query->bindParam(":fechafin", $fecha_fin, PDO::PARAM_STR);
+            $query->bindParam(":INICIO", $FECHA_INI, PDO::PARAM_STR);
+            $query->bindParam(":FIN", $FECHA_FIN, PDO::PARAM_STR);
+
+
+            if ($query->execute()) {
+                $result = $query->fetchAll(PDO::FETCH_ASSOC);
+                $res = array(
+                    "success" => true,
+                    "data" => $result,
+                    "message" => "",
+                    "sql" => ""
+                );
+                echo json_encode($res);
+                exit();
+            } else {
+                $err = $query->errorInfo();
+                $res = array(
+                    "success" => false,
+                    "data" => [],
+                    "message" => $err,
+                    "sql" => ""
+                );
+                echo json_encode($res);
+                exit();
+            }
+        } catch (PDOException $e) {
+            $res = array(
+                "success" => false,
+                "data" => [],
+                "message" => $e,
+                "sql" => ""
+            );
+            echo json_encode($res);
+            exit();
+        }
+    }
+
+    function Estado_formulario($parametros)
+    {
+
+        try {
+
+            $FECHA_INI = $parametros["FECHA_INI"];
+            $FECHA_FIN = $parametros["FECHA_FIN"];
+
+            $items = [];
+            $query = $this->db->connect()->prepare("SELECT 
+                        'Completadas' as estado,
+                        COUNT(*) as total
+                        FROM wsoqajmy_chatbot.tb_chatbot tc 
+                        WHERE DATE(tc.Fecha_de_Consulta) BETWEEN :INICIO AND :FIN
+
+                    UNION ALL
+                        SELECT 
+                        'Incompletas' as estado,
+                        COUNT(*) 
+                        FROM consultas_ganga cg2 
+                        where cedula not in (SELECT numero_identidad from wsoqajmy_chatbot.tb_chatbot tc)
+                        and DATE(cg2.fecha) BETWEEN :INICIO AND :FIN
+
+                    UNION ALL
+                    SELECT
+                        'Iniciadas' as estado,
+                        1 as total
+                    ");
+            $query->bindParam(":INICIO", $FECHA_INI, PDO::PARAM_STR);
+            $query->bindParam(":FIN", $FECHA_FIN, PDO::PARAM_STR);
 
             if ($query->execute()) {
                 $result = $query->fetchAll(PDO::FETCH_ASSOC);
@@ -273,15 +348,17 @@ class PrincipalModel extends Model
                     COUNT(*) as total
                     from wsoqajmy_chatbot.tb_chatbot tc 
                     where campo_1 = 'Cliente Si Califica'
+                    and DATE(tc.Fecha_de_Consulta) BETWEEN :INICIO AND :FIN
                     UNION ALL
                     select 
                     'Rechazados' as estado,
                     COUNT(*) as total
                     from wsoqajmy_chatbot.tb_chatbot tc 
                     where campo_1 like '%Solicitud Rechazada%'
+                    and DATE(tc.Fecha_de_Consulta) BETWEEN :INICIO AND :FIN
                     ");
-            // $query->bindParam(":fechaini", $fecha_ini, PDO::PARAM_STR);
-            // $query->bindParam(":fechafin", $fecha_fin, PDO::PARAM_STR);
+            $query->bindParam(":INICIO", $FECHA_INI, PDO::PARAM_STR);
+            $query->bindParam(":FIN", $FECHA_FIN, PDO::PARAM_STR);
 
             if ($query->execute()) {
                 $result = $query->fetchAll(PDO::FETCH_ASSOC);
@@ -316,17 +393,55 @@ class PrincipalModel extends Model
         }
     }
 
+    function Datos_General($parametros)
+    {
+        try {
 
+            $FECHA_INI = $parametros["FECHA_INI"];
+            $FECHA_FIN = $parametros["FECHA_FIN"];
 
+            $items = [];
+            $query = $this->db->connect()->prepare("SELECT  * from consultas_ganga cg 
+                left join wsoqajmy_chatbot.tb_chatbot tc 
+                on tc.ID_Transaccion = cg.id_unico 
+                where DATE(cg.fecha) BETWEEN :INICIO AND :FIN
+                order by tc.id
+                ");
+            $query->bindParam(":INICIO", $FECHA_INI, PDO::PARAM_STR);
+            $query->bindParam(":FIN", $FECHA_FIN, PDO::PARAM_STR);
 
-
-
-
-
-
-
-
-
+            if ($query->execute()) {
+                $result = $query->fetchAll(PDO::FETCH_ASSOC);
+                $res = array(
+                    "success" => true,
+                    "data" => $result,
+                    "message" => "",
+                    "sql" => ""
+                );
+                echo json_encode($res);
+                exit();
+            } else {
+                $err = $query->errorInfo();
+                $res = array(
+                    "success" => false,
+                    "data" => [],
+                    "message" => $err,
+                    "sql" => ""
+                );
+                echo json_encode($res);
+                exit();
+            }
+        } catch (PDOException $e) {
+            $res = array(
+                "success" => false,
+                "data" => [],
+                "message" => $e,
+                "sql" => ""
+            );
+            echo json_encode($res);
+            exit();
+        }
+    }
 
 
 
