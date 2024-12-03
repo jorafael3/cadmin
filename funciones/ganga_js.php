@@ -7,6 +7,7 @@ $url_Cargar_Total_Rechazados = constant('URL') . 'principal/Cargar_Total_Rechaza
 $url_Cargar_Monto_Aprobado = constant('URL') . 'principal/Cargar_Monto_Aprobado/';
 $url_Estado_de_credito = constant('URL') . 'principal/Estado_de_credito/';
 $url_Estado_formulario = constant('URL') . 'principal/Estado_formulario/';
+$url_Numero_Conversaciones = constant('URL') . 'principal/Numero_Conversaciones/';
 
 $url_Datos_General = constant('URL') . 'principal/Datos_General/';
 
@@ -19,6 +20,7 @@ $url_Datos_General = constant('URL') . 'principal/Datos_General/';
     var url_Cargar_Total_Rechazados = '<?php echo $url_Cargar_Total_Rechazados ?>';
     var url_Cargar_Monto_Aprobado = '<?php echo $url_Cargar_Monto_Aprobado ?>';
     var url_Estado_formulario = '<?php echo $url_Estado_formulario ?>';
+    var url_Numero_Conversaciones = '<?php echo $url_Numero_Conversaciones ?>';
 
     var url_Estado_de_credito = '<?php echo $url_Estado_de_credito ?>';
     var url_Datos_General = '<?php echo $url_Datos_General ?>';
@@ -38,7 +40,7 @@ $url_Datos_General = constant('URL') . 'principal/Datos_General/';
             Cargar_Total_Aprobados()
             Cargar_Total_Rechazados()
             Cargar_Monto_Aprobado()
-
+            Numero_Conversaciones()
 
 
             Estado_formulario()
@@ -80,7 +82,7 @@ $url_Datos_General = constant('URL') . 'principal/Datos_General/';
             FECHA_FIN: FECHA_FIN
         }
         AjaxSendReceiveData(url_Cargar_Total_Completados, param, function(x) {
-            
+
 
             if (x.success) {
                 let datos = x.data;
@@ -170,7 +172,7 @@ $url_Datos_General = constant('URL') . 'principal/Datos_General/';
                 let datos = x.data;
                 if (datos.length > 0) {
                     datos = datos[0]
-                    $("#MONTO_APROBADO").text("$" + datos.MONTO_APROBADO);
+                    $("#MONTO_APROBADO").text(formatCurrency(datos.MONTO_APROBADO));
                 } else {
 
                 }
@@ -179,6 +181,34 @@ $url_Datos_General = constant('URL') . 'principal/Datos_General/';
             }
         });
     }
+
+    function Numero_Conversaciones() {
+        let param = {
+            FECHA_INI: FECHA_INI,
+            FECHA_FIN: FECHA_FIN
+        }
+        AjaxSendReceiveData(url_Numero_Conversaciones, param, function(x) {
+
+            if (x.success) {
+                let datos = x.data;
+                if (datos.length > 0) {
+                    datos = datos[0]
+                    $("#NUM_CONVERSACIONES").text((datos.NUMERO));
+                } else {
+
+                }
+            } else {
+
+            }
+        });
+    }
+
+    const formatCurrency = (amount) => {
+        return new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD',
+        }).format(amount);
+    };
 
 
 
@@ -191,7 +221,7 @@ $url_Datos_General = constant('URL') . 'principal/Datos_General/';
         AjaxSendReceiveData(url_Estado_formulario, param, function(x) {
             console.log("🚀 ~ AjaxSendReceiveData ~ x:", x)
             am4core.useTheme(am4themes_animated);
-            
+
             let data = x.data
             let estadoFormularioChart = am4core.create("estadoFormularioChart", am4charts.XYChart);
 

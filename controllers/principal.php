@@ -69,6 +69,12 @@ class Principal extends Controller
         $function = $this->model->Datos_General($array);
     }
 
+    function Numero_Conversaciones()
+    {
+        $array = json_decode(file_get_contents("php://input"), true);
+        $function = $this->model->Numero_Conversaciones($array);
+    }
+
 
 
 

@@ -132,7 +132,7 @@ $currentDateTime = date("Y-m-d");
             <div class="card text-center">
                 <div class="card-body" style="height: 150px;">
                     <h5 class="card-title fw-bold"># Conversaciones</h5><br>
-                    <h1 class="fw-bold display-1">68</h1>
+                    <h1 class="fw-bold display-1" id="NUM_CONVERSACIONES">...</h1>
                 </div>
             </div>
         </div>
